@@ -14,7 +14,8 @@ void printLafunDocument(std::ostream &os, const LafunDocument &document) {
 	for (const auto &block : document) {
 		std::visit(overloaded {
 			[&](const RawLatex &block) { os << block.str; },
-			[&](const IdentifierRef &ref) { os << '@' << ref.identifier; },
+			[&](const IdentifierUpwardsRef &ref) { os << '@' << ref.ident; },
+			[&](const IdentifierDownwardsRef &ref) { os << '!' << ref.ident; },
 			[&](const fun::ast::Declaration &decl) { fun::printDeclaration(os, decl); },
 		}, block);
 	}

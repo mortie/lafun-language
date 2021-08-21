@@ -50,6 +50,35 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 					currentBlock += reader.readCh();
 				}
 			}
+		} else if (ch == '@' || ch == '!') {
+			if (!currentBlock.empty()) {
+				document.push_back(RawLatex{std::move(currentBlock)});
+			}
+
+			reader.readCh();
+
+			// Parse downwards/upwards ref
+			std::string ident;
+
+			while (true) {
+				int ch = reader.peekCh(0);
+				if (!(
+						(ch >= 'a' && ch <= 'z') ||
+						(ch >= 'A' && ch <= 'Z') ||
+						(ch >= '0' && ch <= '9') ||
+						ch == '_')) {
+					break;
+				}
+				ident += reader.readCh();
+			}
+
+			if (ch == '@') {
+				// Upwards ref
+				document.push_back(IdentifierUpwardsRef{std::move(ident)});
+			} else {
+				// Downwards ref
+				document.push_back(IdentifierDownwardsRef{std::move(ident)});
+			}
 		} else if (ch == '{') {
 			// Read till next *matching* }
 			currentBlock += reader.readCh();

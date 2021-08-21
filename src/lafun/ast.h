@@ -11,14 +11,19 @@ struct RawLatex {
 	std::string str;
 };
 
-struct IdentifierRef {
-	std::string identifier;
+struct IdentifierUpwardsRef {
+	std::string ident;
+};
+
+struct IdentifierDownwardsRef {
+	std::string ident;
 };
 
 using LafunBlock = std::variant<
 	fun::ast::Declaration,
 	RawLatex,
-	IdentifierRef>;
+	IdentifierUpwardsRef,
+	IdentifierDownwardsRef>;
 
 using LafunDocument = std::vector<LafunBlock>;
 
