@@ -324,7 +324,7 @@ Token Lexer::readTok() {
 	return makeTok(TokKind::ERROR, cat("Unexpected character: '", (char)ch, '\''));
 }
 
-int Lexer::readCh() {
+int Reader::readCh() {
 	if (idx_ >= string_.size()) {
 		return EOF;
 	}
@@ -339,7 +339,7 @@ int Lexer::readCh() {
 	return ch;
 }
 
-int Lexer::peekCh(size_t n) {
+int Reader::peekCh(size_t n) {
 	if (idx_ + n >= string_.size()) {
 		return EOF;
 	}

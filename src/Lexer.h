@@ -49,9 +49,25 @@ struct Token {
 	static std::string kindToString(TokKind kind);
 };
 
-class Lexer {
+class Reader {
 public:
-	Lexer(const std::string &string): string_(string) {}
+	Reader(std::string_view string): string_(std::move(string)) {}
+
+protected:
+	int readCh();
+	int peekCh(size_t n);
+
+	size_t idx_ = 0;
+	int line_ = 0;
+	int column_ = 0;
+
+private:
+	std::string_view string_;
+};
+
+class Lexer: Reader {
+public:
+	Lexer(std::string_view string): Reader(std::move(string)) {}
 
 	Token &peek(size_t n);
 	Token consume();
@@ -67,16 +83,9 @@ private:
 
 	Token readTok();
 
-	int readCh();
-	int peekCh(size_t n);
 	Token makeTok(TokKind kind) { return {kind, line_, column_, {}}; }
 	Token makeTok(TokKind kind, std::string &&str) { return {kind, line_, column_, std::move(str)}; }
 	Token makeTok(TokKind kind, double num) { return {kind, line_, column_, num}; }
-
-	const std::string &string_;
-	size_t idx_ = 0;
-	int line_ = 0;
-	int column_ = 0;
 
 	Token buffer_[4];
 	size_t bufidx_ = 0;
