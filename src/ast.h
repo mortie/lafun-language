@@ -58,9 +58,17 @@ struct DeclAssignmentExpr {
 	std::unique_ptr<Expression> rhs;
 };
 
+struct ClassDecl;
+struct FuncDecl;
+struct MethodDecl;
+using Declaration = std::variant<ClassDecl, FuncDecl, MethodDecl>;
+
 struct CodeBlock;
 struct IfStatm;
-using Statement = std::variant<Expression, IfStatm>;
+using Statement = std::variant<
+	Expression,
+	IfStatm,
+	Declaration>;
 
 struct IfStatm {
 	Expression condition;
@@ -68,19 +76,26 @@ struct IfStatm {
 	std::unique_ptr<CodeBlock> elseBody;
 };
 
-struct CodeBlock {
-	std::vector<Statement> statms;
-};
-
 struct ClassDecl {
 	std::string name;
-	CodeBlock body;
+	std::unique_ptr<CodeBlock> body;
 };
 
 struct FuncDecl {
 	std::string name;
 	std::vector<std::string> args;
-	CodeBlock body;
+	std::unique_ptr<CodeBlock> body;
+};
+
+struct MethodDecl {
+	std::string className;
+	std::string name;
+	std::vector<std::string> args;
+	std::unique_ptr<CodeBlock> body;
+};
+
+struct CodeBlock {
+	std::vector<Statement> statms;
 };
 
 }

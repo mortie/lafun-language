@@ -86,12 +86,62 @@ static void printIfStatm(std::ostream &os, IfStatm &statm, int depth) {
 	}
 }
 
+static void printDeclaration(std::ostream &os, Declaration &decl, int depth) {
+	if (std::holds_alternative<ClassDecl>(decl)) {
+		ClassDecl &classDecl = std::get<ClassDecl>(decl);
+		os << "\\class{" << classDecl.name << "}{\n";
+		printCodeBlock(os, *classDecl.body, depth + 1);
+		indent(os, depth);
+		os << '}';
+	} else if (std::holds_alternative<FuncDecl>(decl)) {
+		FuncDecl &funcDecl = std::get<FuncDecl>(decl);
+		os << "\\fun{" << funcDecl.name << "}{";
+
+		bool first = true;
+		for (std::string &arg: funcDecl.args) {
+			if (!first) {
+				os << ", ";
+			}
+
+			os << arg;
+			first = false;
+		}
+
+		os << "}{\n";
+		printCodeBlock(os, *funcDecl.body, depth + 1);
+		indent(os, depth);
+		os << '}';
+	} else if (std::holds_alternative<MethodDecl>(decl)) {
+		MethodDecl &methodDecl = std::get<MethodDecl>(decl);
+		os << "\\fun{" << methodDecl.className << "::" << methodDecl.name << "}{";
+
+		bool first = true;
+		for (std::string &arg: methodDecl.args) {
+			if (!first) {
+				os << ", ";
+			}
+
+			os << arg;
+			first = false;
+		}
+
+		os << "}{\n";
+		printCodeBlock(os, *methodDecl.body, depth + 1);
+		indent(os, depth);
+		os << '}';
+	} else {
+		assert(false);
+	}
+}
+
 static void printStatement(std::ostream &os, Statement &statm, int depth) {
 	if (std::holds_alternative<Expression>(statm)) {
 		printExpression(os, std::get<Expression>(statm), depth);
 		os << ';';
 	} else if (std::holds_alternative<IfStatm>(statm)) {
 		printIfStatm(os, std::get<IfStatm>(statm), depth);
+	} else if (std::holds_alternative<Declaration>(statm)) {
+		printDeclaration(os, std::get<Declaration>(statm), depth);
 	} else {
 		assert(false);
 	}

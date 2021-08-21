@@ -40,13 +40,13 @@ static void expect(Lexer &lexer, TokKind kind) {
 
 static void parseExpression(Lexer &lexer, Expression &expr);
 
-static void parseParameterList(Lexer &lexer, std::vector<std::unique_ptr<Expression>> &params) {
+static void parseArgumentList(Lexer &lexer, std::vector<std::unique_ptr<Expression>> &args) {
 	lexer.consume(); // '('
 
 	while (true) {
 		std::unique_ptr<Expression> param = std::make_unique<Expression>();
 		parseExpression(lexer, *param);
-		params.push_back(std::move(param));
+		args.push_back(std::move(param));
 
 		Token tok = lexer.peek(0);
 		if (tok.kind == TokKind::COMMA) {
@@ -99,7 +99,7 @@ static void parseExpression(Lexer &lexer, Expression &expr) {
 		} else if (kind == TokKind::OPEN_PAREN) {
 			FuncCallExpr call;
 			call.func = std::make_unique<Expression>(std::move(expr));
-			parseParameterList(lexer, call.args);
+			parseArgumentList(lexer, call.args);
 			expr = std::move(call);
 		} else if (kind == TokKind::EQ) {
 			lexer.consume(); // '='
@@ -180,6 +180,9 @@ static void parseStatement(Lexer &lexer, Statement &statm) {
 	if (kind == TokKind::IF) {
 		statm.emplace<IfStatm>();
 		parseIfStatm(lexer, std::get<IfStatm>(statm));
+	} else if (kind == TokKind::BACKSLASH) {
+		statm.emplace<Declaration>();
+		parseDeclaration(lexer, std::get<Declaration>(statm));
 	} else {
 		statm.emplace<Expression>();
 		parseExpression(lexer, std::get<Expression>(statm));
@@ -198,6 +201,100 @@ void parseCodeBlock(Lexer &lexer, CodeBlock &block) {
 		block.statms.emplace_back();
 		parseStatement(lexer, block.statms.back());
 	}
-};
+}
+
+void parseDeclaration(Lexer &lexer, Declaration &decl) {
+	expect(lexer, TokKind::BACKSLASH);
+	lexer.consume(); // '\'
+
+	// ident
+	expect(lexer, TokKind::IDENT);
+	Token identTok = lexer.consume();
+
+	if (identTok.getStr() == "class") {
+		expect(lexer, TokKind::OPEN_BRACE);
+		lexer.consume(); // '{'
+
+		expect(lexer, TokKind::IDENT);
+		std::string name = std::move(lexer.consume().getStr());
+
+		expect(lexer, TokKind::CLOSE_BRACE);
+		lexer.consume(); // '}'
+
+		expect(lexer, TokKind::OPEN_BRACE);
+		lexer.consume(); // '{'
+
+		// <code block>
+		std::unique_ptr<CodeBlock> body = std::make_unique<CodeBlock>();
+		parseCodeBlock(lexer, *body);
+
+		expect(lexer, TokKind::CLOSE_BRACE);
+		lexer.consume(); // '}'
+
+		decl = ClassDecl{std::move(name), std::move(body)};
+	} else if (identTok.getStr() == "fun") {
+		expect(lexer, TokKind::OPEN_BRACE);
+		lexer.consume(); // '{'
+
+		expect(lexer, TokKind::IDENT);
+		std::string name1 = std::move(lexer.consume().getStr());
+		std::string name2 = "";
+		bool isMethod = false;
+
+		if (lexer.peek(0).kind == TokKind::COLONCOLON) {
+			isMethod = true;
+			lexer.consume(); // '::'
+
+			expect(lexer, TokKind::IDENT);
+			name2 = std::move(lexer.consume().getStr());
+		}
+
+		expect(lexer, TokKind::CLOSE_BRACE);
+		lexer.consume(); // '}'
+
+		expect(lexer, TokKind::OPEN_BRACE);
+		lexer.consume(); // '{'
+
+		// <args>
+		std::vector<std::string> args;
+		while (true) {
+			expect(lexer, TokKind::IDENT);
+			args.push_back(std::move(lexer.consume().getStr()));
+
+			if (lexer.peek(0).kind == TokKind::COMMA) {
+				continue;
+			} else if (lexer.peek(0).kind == TokKind::CLOSE_BRACE) {
+				break;
+			} else {
+				fail(lexer.peek(0), {TokKind::COMMA, TokKind::CLOSE_BRACE});
+			}
+		}
+
+		lexer.consume(); // '}'
+
+		expect(lexer, TokKind::OPEN_BRACE);
+		lexer.consume(); // '{'
+
+		// <code block>
+		std::unique_ptr<CodeBlock> body = std::make_unique<CodeBlock>();
+		parseCodeBlock(lexer, *body);
+
+		expect(lexer, TokKind::CLOSE_BRACE);
+		lexer.consume(); // '}'
+
+		if (isMethod) {
+			decl = MethodDecl{
+				std::move(name1), std::move(name2),
+				std::move(args), std::move(body),
+			};
+		} else {
+			decl = FuncDecl{std::move(name1), std::move(args), std::move(body)};
+		}
+	} else {
+		throw ParseError(
+				identTok.line, identTok.column,
+				"Expected 'class' or 'fun', got " + identTok.getStr());
+	}
+}
 
 }

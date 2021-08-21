@@ -75,6 +75,7 @@ std::string Token::kindToString(TokKind kind) {
 	case TokKind::CLOSE_PAREN: return "CLOSE_PAREN";
 	case TokKind::OPEN_BRACKET: return "OPEN_BRACKET";
 	case TokKind::CLOSE_BRACKET: return "CLOSE_BRACKET";
+	case TokKind::BACKSLASH: return "BACKSLASH";
 	case TokKind::SEMICOLON: return "SEMICOLON";
 	case TokKind::COMMA: return "COMMA";
 	case TokKind::EQ: return "EQ";
@@ -255,6 +256,7 @@ Token Lexer::readTok() {
 	case ')': readCh(); return makeTok(TokKind::CLOSE_PAREN);
 	case '[': readCh(); return makeTok(TokKind::OPEN_BRACKET);
 	case ']': readCh(); return makeTok(TokKind::CLOSE_BRACKET);
+	case '\\': readCh(); return makeTok(TokKind::BACKSLASH);
 	case ';': readCh(); return makeTok(TokKind::SEMICOLON);
 	case ',': readCh(); return makeTok(TokKind::COMMA);
 	case EOF: readCh(); return makeTok(TokKind::E_O_F);

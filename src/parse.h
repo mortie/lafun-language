@@ -19,5 +19,6 @@ struct ParseError: public std::exception {
 };
 
 void parseCodeBlock(Lexer &lexer, ast::CodeBlock &block);
+void parseDeclaration(Lexer &lexer, ast::Declaration &decl);
 
 }
