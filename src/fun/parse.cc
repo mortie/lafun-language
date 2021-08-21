@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include "util.h"
+
 using namespace fun::ast;
 
 namespace fun {
