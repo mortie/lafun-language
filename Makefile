@@ -24,6 +24,12 @@ $(OUT)/%.cc.o: %.cc
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
+$(OUT)/%.cc.d: %.cc
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -MM -MT "$(patsubst %,$(OUT)/%.o,$<) $(patsubst %,$(OUT)/%.d,$<)" -o $@ $<
+
+include $(patsubst %,$(OUT)/%.d,$(SRCS))
+
 .PHONY: clean
 clean:
 	rm -rf $(OUT)
