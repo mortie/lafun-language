@@ -20,6 +20,7 @@ enum class TokKind {
 	CLOSE_BRACKET,
 
 	SEMICOLON,
+	COMMA,
 	EQ, EQEQ, COLONEQ,
 	PLUS, PLUSEQ,
 	MINUS, MINUSEQ,
@@ -40,6 +41,9 @@ struct Token {
 
 	struct Empty {};
 	std::variant<Empty, std::string, double> val;
+
+	std::string &getStr() { return std::get<std::string>(val); }
+	double getNum() { return std::get<double>(val); }
 
 	std::string toString();
 	static std::string kindToString(TokKind kind);

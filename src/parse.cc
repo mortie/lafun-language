@@ -38,13 +38,88 @@ static void expect(Lexer &lexer, TokKind kind) {
 	}
 }
 
+static void parseExpression(Lexer &lexer, Expression &expr);
+
+static void parseParameterList(Lexer &lexer, std::vector<std::unique_ptr<Expression>> &params) {
+	lexer.consume(); // '('
+
+	while (true) {
+		std::unique_ptr<Expression> param = std::make_unique<Expression>();
+		parseExpression(lexer, *param);
+		params.push_back(std::move(param));
+
+		Token tok = lexer.peek(0);
+		if (tok.kind == TokKind::COMMA) {
+			lexer.consume(); // ','
+		} else if (tok.kind == TokKind::CLOSE_PAREN) {
+			break;
+		} else {
+			fail(tok, {TokKind::COMMA, TokKind::CLOSE_PAREN});
+		}
+	}
+
+	lexer.consume(); // ')'
+}
+
 static void parseExpression(Lexer &lexer, Expression &expr) {
-	Token &tok = lexer.peek(0);
-	TokKind kind = tok.kind;
-	if (kind == TokKind::IDENT) {
-		expr = IdentifierExpr{std::move(std::get<std::string>(lexer.consume().val))};
+	TokKind kind = lexer.peek(0).kind;
+	if (kind == TokKind::STRING) {
+		expr = StringLiteralExpr{std::move(lexer.consume().getStr())};
+	} else if (kind == TokKind::NUMBER) {
+		expr = NumberLiteralExpr{lexer.consume().getNum()};
+	} else if (kind == TokKind::IDENT) {
+		expr = IdentifierExpr{std::move(lexer.consume().getStr())};
 	} else {
-		fail(tok, TokKind::IDENT);
+		fail(lexer.peek(0), TokKind::IDENT);
+	}
+
+	while (true) {
+		kind = lexer.peek(0).kind;
+		if (
+				kind == TokKind::PLUS || kind == TokKind::MINUS ||
+				kind == TokKind::MULT || kind == TokKind::DIV) {
+			lexer.consume(); // operator
+
+			BinaryExpr bin;
+			bin.lhs = std::make_unique<Expression>(std::move(expr));
+			bin.rhs = std::make_unique<Expression>();
+			parseExpression(lexer, *bin.rhs);
+
+			if (kind == TokKind::PLUS) {
+				bin.op = BinaryExpr::ADD;
+			} else if (kind == TokKind::MINUS) {
+				bin.op = BinaryExpr::SUB;
+			} else if (kind == TokKind::MULT) {
+				bin.op = BinaryExpr::MULT;
+			} else if (kind == TokKind::DIV) {
+				bin.op = BinaryExpr::DIV;
+			}
+
+			expr = std::move(bin);
+		} else if (kind == TokKind::OPEN_PAREN) {
+			FuncCallExpr call;
+			call.func = std::make_unique<Expression>(std::move(expr));
+			parseParameterList(lexer, call.args);
+			expr = std::move(call);
+		} else if (kind == TokKind::EQ) {
+			lexer.consume(); // '='
+
+			AssignmentExpr assignment;
+			assignment.lhs = std::make_unique<Expression>(std::move(expr));
+			assignment.rhs = std::make_unique<Expression>();
+			parseExpression(lexer, *assignment.rhs);
+			expr = std::move(assignment);
+		} else if (kind == TokKind::COLONEQ) {
+			lexer.consume(); // ':='
+
+			DeclAssignmentExpr assignment;
+			assignment.lhs = std::make_unique<Expression>(std::move(expr));
+			assignment.rhs = std::make_unique<Expression>();
+			parseExpression(lexer, *assignment.rhs);
+			expr = std::move(assignment);
+		} else {
+			break;
+		}
 	}
 }
 

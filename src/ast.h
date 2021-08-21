@@ -12,12 +12,16 @@ struct NumberLiteralExpr;
 struct IdentifierExpr;
 struct BinaryExpr;
 struct FuncCallExpr;
+struct AssignmentExpr;
+struct DeclAssignmentExpr;
 using Expression = std::variant<
 	StringLiteralExpr,
 	NumberLiteralExpr,
 	IdentifierExpr,
 	BinaryExpr,
-	FuncCallExpr>;
+	FuncCallExpr,
+	AssignmentExpr,
+	DeclAssignmentExpr>;
 
 struct StringLiteralExpr {
 	std::string str;
@@ -42,6 +46,16 @@ struct BinaryExpr {
 struct FuncCallExpr {
 	std::unique_ptr<Expression> func;
 	std::vector<std::unique_ptr<Expression>> args;
+};
+
+struct AssignmentExpr {
+	std::unique_ptr<Expression> lhs;
+	std::unique_ptr<Expression> rhs;
+};
+
+struct DeclAssignmentExpr {
+	std::unique_ptr<Expression> lhs;
+	std::unique_ptr<Expression> rhs;
 };
 
 struct CodeBlock;

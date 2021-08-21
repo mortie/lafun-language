@@ -18,8 +18,52 @@ static void indent(std::ostream &os, int depth) {
 }
 
 static void printExpression(std::ostream &os, Expression &expr, int depth) {
-	if (std::holds_alternative<IdentifierExpr>(expr)) {
+	if (std::holds_alternative<StringLiteralExpr>(expr)) {
+		os << '"' << std::get<StringLiteralExpr>(expr).str << '"';
+	} else if (std::holds_alternative<NumberLiteralExpr>(expr)) {
+		os << std::get<NumberLiteralExpr>(expr).num;
+	} else if (std::holds_alternative<IdentifierExpr>(expr)) {
 		os << std::get<IdentifierExpr>(expr).ident;
+	} else if (std::holds_alternative<BinaryExpr>(expr)) {
+		BinaryExpr &bin = std::get<BinaryExpr>(expr);
+		printExpression(os, *bin.lhs, depth);
+
+		switch (bin.op) {
+		case BinaryExpr::ADD: os << " + "; break;
+		case BinaryExpr::SUB: os << " - "; break;
+		case BinaryExpr::MULT: os << " * "; break;
+		case BinaryExpr::DIV: os << " / "; break;
+		}
+
+		printExpression(os, *bin.rhs, depth);
+	} else if (std::holds_alternative<FuncCallExpr>(expr)) {
+		FuncCallExpr &call = std::get<FuncCallExpr>(expr);
+		printExpression(os, *call.func, 0);
+		os << '(';
+
+		bool first = true;
+		for (std::unique_ptr<Expression> &arg: call.args) {
+			if (!first) {
+				os << ", ";
+			}
+
+			printExpression(os, *arg, depth);
+			first = false;
+		}
+
+		os << ')';
+	} else if (std::holds_alternative<AssignmentExpr>(expr)) {
+		AssignmentExpr &assignment = std::get<AssignmentExpr>(expr);
+
+		printExpression(os, *assignment.lhs, depth);
+		os << " = ";
+		printExpression(os, *assignment.rhs, depth);
+	} else if (std::holds_alternative<DeclAssignmentExpr>(expr)) {
+		DeclAssignmentExpr &assignment = std::get<DeclAssignmentExpr>(expr);
+
+		printExpression(os, *assignment.lhs, depth);
+		os << " := ";
+		printExpression(os, *assignment.rhs, depth);
 	} else {
 		assert(false);
 	}
