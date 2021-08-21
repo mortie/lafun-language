@@ -38,10 +38,10 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 				}
 
 				Lexer lexer(reader);
-				ast::CodeBlock block;
-				parseCodeBlock(lexer, block);
+				ast::Declaration decl;
+				parseDeclaration(lexer, decl);
 				reader = lexer.reader;
-				document.push_back(std::move(block));
+				document.push_back(std::move(decl));
 			} else {
 				// skip it
 				for (size_t j = 0; j < i; j++) {
@@ -63,6 +63,11 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 					numBracesToMatch--;
 				}
 			}
+		} else if (ch == EOF) {
+			if (!currentBlock.empty()) {
+				document.push_back(RawLatex{std::move(currentBlock)});
+			}
+			break;
 		} else {
 			currentBlock += reader.readCh();
 		}

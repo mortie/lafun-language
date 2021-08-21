@@ -16,7 +16,7 @@ struct IdentifierRef {
 };
 
 using LafunBlock = std::variant<
-	ast::CodeBlock,
+	ast::Declaration,
 	RawLatex,
 	IdentifierRef>;
 

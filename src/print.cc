@@ -86,7 +86,7 @@ static void printIfStatm(std::ostream &os, const IfStatm &statm, int depth) {
 	}
 }
 
-static void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
+void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 	if (std::holds_alternative<ClassDecl>(decl)) {
 		const ClassDecl &classDecl = std::get<ClassDecl>(decl);
 		os << "\\class{" << classDecl.name << "}{\n";

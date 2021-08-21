@@ -19,7 +19,7 @@ void printLafunDocument(std::ostream &os, const LafunDocument &document) {
 		std::visit(overloaded {
 				[&](const RawLatex &block) { os << block.str; },
 				[&](const IdentifierRef &ref) { os << '@' << ref.identifier; },
-				[&](const ast::CodeBlock &block) { printCodeBlock(os, block); },
+				[&](const ast::Declaration &decl) { printDeclaration(os, decl); },
 			}, block);
 	}
 }
