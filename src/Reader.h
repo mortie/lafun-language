@@ -10,7 +10,7 @@ public:
 
 	void reset();
 	int readCh();
-	int peekCh(size_t n);
+	int peekCh(size_t n) const;
 
 	size_t idx = 0;
 	int line = 0;

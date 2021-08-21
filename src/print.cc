@@ -17,7 +17,7 @@ static void indent(std::ostream &os, int depth) {
 	}
 }
 
-static void printExpression(std::ostream &os, Expression &expr, int depth) {
+static void printExpression(std::ostream &os, const Expression &expr, int depth) {
 	if (std::holds_alternative<StringLiteralExpr>(expr)) {
 		os << '"' << std::get<StringLiteralExpr>(expr).str << '"';
 	} else if (std::holds_alternative<NumberLiteralExpr>(expr)) {
@@ -25,7 +25,7 @@ static void printExpression(std::ostream &os, Expression &expr, int depth) {
 	} else if (std::holds_alternative<IdentifierExpr>(expr)) {
 		os << std::get<IdentifierExpr>(expr).ident;
 	} else if (std::holds_alternative<BinaryExpr>(expr)) {
-		BinaryExpr &bin = std::get<BinaryExpr>(expr);
+		const BinaryExpr &bin = std::get<BinaryExpr>(expr);
 		printExpression(os, *bin.lhs, depth);
 
 		switch (bin.op) {
@@ -37,12 +37,12 @@ static void printExpression(std::ostream &os, Expression &expr, int depth) {
 
 		printExpression(os, *bin.rhs, depth);
 	} else if (std::holds_alternative<FuncCallExpr>(expr)) {
-		FuncCallExpr &call = std::get<FuncCallExpr>(expr);
+		const FuncCallExpr &call = std::get<FuncCallExpr>(expr);
 		printExpression(os, *call.func, 0);
 		os << '(';
 
 		bool first = true;
-		for (std::unique_ptr<Expression> &arg: call.args) {
+		for (const std::unique_ptr<Expression> &arg: call.args) {
 			if (!first) {
 				os << ", ";
 			}
@@ -53,13 +53,13 @@ static void printExpression(std::ostream &os, Expression &expr, int depth) {
 
 		os << ')';
 	} else if (std::holds_alternative<AssignmentExpr>(expr)) {
-		AssignmentExpr &assignment = std::get<AssignmentExpr>(expr);
+		const AssignmentExpr &assignment = std::get<AssignmentExpr>(expr);
 
 		printExpression(os, *assignment.lhs, depth);
 		os << " = ";
 		printExpression(os, *assignment.rhs, depth);
 	} else if (std::holds_alternative<DeclAssignmentExpr>(expr)) {
-		DeclAssignmentExpr &assignment = std::get<DeclAssignmentExpr>(expr);
+		const DeclAssignmentExpr &assignment = std::get<DeclAssignmentExpr>(expr);
 
 		printExpression(os, *assignment.lhs, depth);
 		os << " := ";
@@ -69,7 +69,7 @@ static void printExpression(std::ostream &os, Expression &expr, int depth) {
 	}
 }
 
-static void printIfStatm(std::ostream &os, IfStatm &statm, int depth) {
+static void printIfStatm(std::ostream &os, const IfStatm &statm, int depth) {
 	os << "if ";
 	printExpression(os, statm.condition, depth);
 
@@ -86,7 +86,7 @@ static void printIfStatm(std::ostream &os, IfStatm &statm, int depth) {
 	}
 }
 
-static void printStatement(std::ostream &os, Statement &statm, int depth) {
+static void printStatement(std::ostream &os, const Statement &statm, int depth) {
 	if (std::holds_alternative<Expression>(statm)) {
 		printExpression(os, std::get<Expression>(statm), depth);
 		os << ';';
@@ -97,8 +97,8 @@ static void printStatement(std::ostream &os, Statement &statm, int depth) {
 	}
 }
 
-void printCodeBlock(std::ostream &os, CodeBlock &block, int depth) {
-	for (Statement &statm: block.statms) {
+void printCodeBlock(std::ostream &os, const CodeBlock &block, int depth) {
+	for (const Statement &statm: block.statms) {
 		indent(os, depth);
 		printStatement(os, statm, depth);
 		os << '\n';

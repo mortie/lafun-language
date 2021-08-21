@@ -122,7 +122,7 @@ Token Lexer::consume() {
 }
 
 void Lexer::reset() {
-	reader_.reset();
+	reader.reset();
 	bufidx_ = 0;
 }
 
@@ -323,11 +323,11 @@ Token Lexer::readTok() {
 }
 
 int Lexer::readCh() {
-	return reader_.readCh();
+	return reader.readCh();
 }
 
 int Lexer::peekCh(size_t n) {
-	return reader_.peekCh(n);
+	return reader.peekCh(n);
 }
 
 }

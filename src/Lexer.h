@@ -53,12 +53,15 @@ struct Token {
 
 class Lexer {
 public:
-	Lexer(std::string_view string): reader_(string) {}
+	Lexer(std::string_view string): reader(string) {}
+	Lexer(const Reader &reader): reader(reader) {}
 
 	Token &peek(size_t n);
 	Token consume();
 
 	void reset();
+
+	Reader reader;
 
 private:
 	void skipWhitespace();
@@ -69,14 +72,13 @@ private:
 
 	Token readTok();
 
-	Token makeTok(TokKind kind) { return {kind, reader_.line, reader_.column, {}}; }
-	Token makeTok(TokKind kind, std::string &&str) { return {kind, reader_.line, reader_.column, std::move(str)}; }
-	Token makeTok(TokKind kind, double num) { return {kind, reader_.line, reader_.column, num}; }
+	Token makeTok(TokKind kind) { return {kind, reader.line, reader.column, {}}; }
+	Token makeTok(TokKind kind, std::string &&str) { return {kind, reader.line, reader.column, std::move(str)}; }
+	Token makeTok(TokKind kind, double num) { return {kind, reader.line, reader.column, num}; }
 
 	int readCh();
 	int peekCh(size_t n);
 
-	Reader reader_;
 	Token buffer_[4];
 	size_t bufidx_ = 0;
 };

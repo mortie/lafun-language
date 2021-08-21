@@ -23,7 +23,7 @@ int Reader::readCh() {
 	return ch;
 }
 
-int Reader::peekCh(size_t n) {
+int Reader::peekCh(size_t n) const {
 	if (idx + n >= string_.size()) {
 		return EOF;
 	}
