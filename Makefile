@@ -28,7 +28,7 @@ endif
 
 all: $(OUT)/fun $(OUT)/lafun
 
-$(OUT)/fun: $(OUT)/src/lafun-cmd.cc.o $(patsubst %,$(OUT)/%.o,$(LIBSRCS))
+$(OUT)/fun: $(OUT)/src/fun-cmd.cc.o $(patsubst %,$(OUT)/%.o,$(LIBSRCS))
 	@mkdir -p $(@D)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
