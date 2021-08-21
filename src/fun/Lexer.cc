@@ -3,15 +3,9 @@
 #include <sstream>
 #include <cassert>
 
-namespace fun {
+#include "util.h"
 
-// TODO: Bring this out to a shared utility function?
-template<typename... Args>
-std::string cat(Args &&...args) {
-	std::stringstream stream;
-	((stream << args), ...);
-	return stream.str();
-}
+namespace fun {
 
 static char parseDigit(char ch, int radix) {
 	int num;
@@ -166,7 +160,7 @@ Token Lexer::readString() {
 				str += ch;
 			} else {
 				return makeTok(TokKind::ERROR,
-						cat("Unexpected escaped character '", (char)ch, '\''));
+						concat("Unexpected escaped character '", (char)ch, '\''));
 			}
 		} else if (ch == terminator) {
 			return makeTok(TokKind::STRING, std::move(str));
@@ -321,7 +315,7 @@ Token Lexer::readTok() {
 		return ident;
 	}
 
-	return makeTok(TokKind::ERROR, cat("Unexpected character: '", (char)ch, '\''));
+	return makeTok(TokKind::ERROR, concat("Unexpected character: '", (char)ch, '\''));
 }
 
 int Lexer::readCh() {
