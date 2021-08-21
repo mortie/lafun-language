@@ -45,7 +45,7 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 			} else {
 				// skip it
 				for (size_t j = 0; j < i; j++) {
-					reader.readCh();
+					currentBlock += reader.readCh();
 				}
 			}
 		} else if (ch == '{') {
