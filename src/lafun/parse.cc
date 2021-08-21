@@ -29,9 +29,11 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 				possibleKeyword += ch;
 			}
 
-			if (possibleKeyword == "fun" ||
-				possibleKeyword == "class" ||
-				possibleKeyword == "var") {
+			if ((possibleKeyword == "fun" ||
+				 possibleKeyword == "class" ||
+				 possibleKeyword == "var") &&
+				reader.peekCh(i) == '{') {
+
 				if (!currentBlock.empty()) {
 					document.push_back(RawLatex{std::move(currentBlock)});
 					currentBlock = "";
