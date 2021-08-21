@@ -6,6 +6,6 @@
 
 namespace lafun {
 
-void printCodeBlock(std::ostream &os, ast::CodeBlock &block, int depth = 0);
+void printCodeBlock(std::ostream &os, const ast::CodeBlock &block, int depth = 0);
 
 }
