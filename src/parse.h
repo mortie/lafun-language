@@ -10,12 +10,21 @@ namespace lafun {
 
 struct ParseError: public std::exception {
 	ParseError(int line, int column, std::string message):
-		line(line), column(column), message(message) {}
+			line(line), column(column) {
+		error = std::to_string(line);
+		error += ":";
+		error += std::to_string(column);
+		error += ": ";
+		error += message;
+	}
+
 	int line;
 	int column;
-	std::string message;
+	std::string error;
 
-	const char *what() const noexcept override { return message.c_str(); }
+	const char *what() const noexcept override {
+		return error.c_str();
+	}
 };
 
 void parseCodeBlock(Lexer &lexer, ast::CodeBlock &block);
