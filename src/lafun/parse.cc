@@ -1,8 +1,8 @@
-#include "lafun_parse.h"
-
 #include "parse.h"
 
-using namespace lafun::lafun_ast;
+#include "fun/parse.h"
+
+using namespace lafun::ast;
 
 namespace lafun {
 
@@ -37,8 +37,8 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 					currentBlock = "";
 				}
 
-				Lexer lexer(reader);
-				ast::Declaration decl;
+				fun::Lexer lexer(reader);
+				fun::ast::Declaration decl;
 				parseDeclaration(lexer, decl);
 				reader = lexer.reader;
 				document.push_back(std::move(decl));

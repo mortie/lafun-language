@@ -1,11 +1,11 @@
-#include "lafun_print.h"
+#include "print.h"
 
 #include <cassert>
 #include <variant>
 
-#include "print.h"
+#include "fun/print.h"
 
-using namespace lafun::lafun_ast;
+using namespace lafun::ast;
 
 // helper type for the visitor #4
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
@@ -19,7 +19,7 @@ void printLafunDocument(std::ostream &os, const LafunDocument &document) {
 		std::visit(overloaded {
 				[&](const RawLatex &block) { os << block.str; },
 				[&](const IdentifierRef &ref) { os << '@' << ref.identifier; },
-				[&](const ast::Declaration &decl) { printDeclaration(os, decl); },
+				[&](const fun::ast::Declaration &decl) { fun::printDeclaration(os, decl); },
 			}, block);
 	}
 }

@@ -7,7 +7,7 @@
 
 #include "Reader.h"
 
-namespace lafun {
+namespace fun {
 
 enum class TokKind {
 	IDENT,

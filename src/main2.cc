@@ -1,5 +1,5 @@
-#include "lafun_parse.h"
-#include "lafun_print.h"
+#include "lafun/parse.h"
+#include "lafun/print.h"
 
 #include <fstream>
 #include <iostream>
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
 	std::cout << "\n == Document:\n";
 	Reader reader(str);
-	lafun_ast::LafunDocument document;
+	ast::LafunDocument document;
 	parseLafun(reader, document);
 	printLafunDocument(std::cout, document);
 

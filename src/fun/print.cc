@@ -2,14 +2,14 @@
 
 #include <cassert>
 
-using namespace lafun::ast;
+using namespace fun::ast;
 
 // helper type for the visitor #4
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 // explicit deduction guide (not needed as of C++20)
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-namespace lafun {
+namespace fun {
 
 static void indent(std::ostream &os, int depth) {
 	for (int i = 0; i < depth; ++i) {

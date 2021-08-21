@@ -3,9 +3,9 @@
 #include <variant>
 #include <vector>
 
-#include "ast.h"
+#include "fun/ast.h"
 
-namespace lafun::lafun_ast {
+namespace lafun::ast {
 
 struct RawLatex {
 	std::string str;
@@ -16,7 +16,7 @@ struct IdentifierRef {
 };
 
 using LafunBlock = std::variant<
-	ast::Declaration,
+	fun::ast::Declaration,
 	RawLatex,
 	IdentifierRef>;
 

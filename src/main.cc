@@ -1,13 +1,12 @@
-#include "parse.h"
-#include "Lexer.h"
-#include "parse.h"
-#include "print.h"
+#include "fun/parse.h"
+#include "fun/Lexer.h"
+#include "fun/print.h"
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-using namespace lafun;
+using namespace fun;
 
 int main(int argc, char **argv) {
 	if (argc != 2) {

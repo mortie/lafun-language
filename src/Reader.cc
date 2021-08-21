@@ -1,7 +1,5 @@
 #include "Reader.h"
 
-namespace lafun {
-
 void Reader::reset() {
 	idx = 0;
 	line = 0;
@@ -29,6 +27,4 @@ int Reader::peekCh(size_t n) const {
 	}
 
 	return string_[idx + n];
-}
-
 }

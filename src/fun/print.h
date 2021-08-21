@@ -4,7 +4,7 @@
 
 #include "ast.h"
 
-namespace lafun {
+namespace fun {
 
 void printCodeBlock(std::ostream &os, const ast::CodeBlock &block, int depth = 0);
 

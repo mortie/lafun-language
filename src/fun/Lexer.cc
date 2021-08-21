@@ -3,7 +3,7 @@
 #include <sstream>
 #include <cassert>
 
-namespace lafun {
+namespace fun {
 
 // TODO: Bring this out to a shared utility function?
 template<typename... Args>

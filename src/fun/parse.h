@@ -6,7 +6,7 @@
 #include "ast.h"
 #include "Lexer.h"
 
-namespace lafun {
+namespace fun {
 
 struct ParseError: public std::exception {
 	ParseError(int line, int column, std::string message):

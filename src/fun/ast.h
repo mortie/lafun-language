@@ -5,7 +5,7 @@
 #include <memory>
 #include <variant>
 
-namespace lafun::ast {
+namespace fun::ast {
 
 struct StringLiteralExpr;
 struct NumberLiteralExpr;

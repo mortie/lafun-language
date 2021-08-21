@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "Lexer.h"
-#include "lafun_ast.h"
+#include "fun/Lexer.h"
+#include "ast.h"
 
 namespace lafun {
 
@@ -17,6 +17,6 @@ struct LafunParseError: public std::exception {
 	const char *what() const noexcept override { return message.c_str(); }
 };
 
-void parseLafun(Reader &reader, lafun_ast::LafunDocument &document);
+void parseLafun(Reader &reader, ast::LafunDocument &document);
 
 }

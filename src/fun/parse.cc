@@ -2,9 +2,9 @@
 
 #include <utility>
 
-using namespace lafun::ast;
+using namespace fun::ast;
 
-namespace lafun {
+namespace fun {
 
 static void fail(Token &tok, TokKind kind) {
 	std::string message = "Expected ";

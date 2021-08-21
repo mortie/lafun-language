@@ -1,12 +1,12 @@
 OUT ?= build
 
 LIBSRCS := \
-	src/Lexer.cc \
+	src/fun/Lexer.cc \
+	src/fun/parse.cc \
+	src/fun/print.cc \
+	src/lafun/parse.cc \
+	src/lafun/print.cc \
 	src/Reader.cc \
-	src/parse.cc \
-	src/print.cc \
-	src/lafun_parse.cc \
-	src/lafun_print.cc \
 #
 
 MAINSRCS := \
@@ -17,7 +17,7 @@ MAINSRCS := \
 ALLSRCS := ${MAINSRCS} ${LIBSRCS}
 
 CXX ?= g++
-CXXFLAGS ?= -std=c++17 -Wall -Wextra -g
+CXXFLAGS ?= -Isrc -std=c++17 -Wall -Wextra -g
 LDFLAGS ?=
 LDLIBS ?=
 

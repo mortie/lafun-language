@@ -2,8 +2,6 @@
 
 #include <string>
 
-namespace lafun {
-
 class Reader {
 public:
 	Reader(std::string_view string): string_(string) {}
@@ -19,5 +17,3 @@ public:
 private:
 	std::string_view string_;
 };
-
-}
