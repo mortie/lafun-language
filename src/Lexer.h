@@ -5,6 +5,8 @@
 #include <variant>
 #include <vector>
 
+#include "Reader.h"
+
 namespace lafun {
 
 enum class TokKind {
@@ -49,25 +51,9 @@ struct Token {
 	static std::string kindToString(TokKind kind);
 };
 
-class Reader {
+class Lexer {
 public:
-	Reader(std::string_view string): string_(std::move(string)) {}
-
-protected:
-	int readCh();
-	int peekCh(size_t n);
-
-	size_t idx_ = 0;
-	int line_ = 0;
-	int column_ = 0;
-
-private:
-	std::string_view string_;
-};
-
-class Lexer: Reader {
-public:
-	Lexer(std::string_view string): Reader(std::move(string)) {}
+	Lexer(std::string_view string): reader_(string) {}
 
 	Token &peek(size_t n);
 	Token consume();
@@ -83,10 +69,14 @@ private:
 
 	Token readTok();
 
-	Token makeTok(TokKind kind) { return {kind, line_, column_, {}}; }
-	Token makeTok(TokKind kind, std::string &&str) { return {kind, line_, column_, std::move(str)}; }
-	Token makeTok(TokKind kind, double num) { return {kind, line_, column_, num}; }
+	Token makeTok(TokKind kind) { return {kind, reader_.line, reader_.column, {}}; }
+	Token makeTok(TokKind kind, std::string &&str) { return {kind, reader_.line, reader_.column, std::move(str)}; }
+	Token makeTok(TokKind kind, double num) { return {kind, reader_.line, reader_.column, num}; }
 
+	int readCh();
+	int peekCh(size_t n);
+
+	Reader reader_;
 	Token buffer_[4];
 	size_t bufidx_ = 0;
 };

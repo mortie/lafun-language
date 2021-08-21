@@ -122,9 +122,7 @@ Token Lexer::consume() {
 }
 
 void Lexer::reset() {
-	idx_ = 0;
-	line_ = 0;
-	column_ = 0;
+	reader_.reset();
 	bufidx_ = 0;
 }
 
@@ -324,27 +322,12 @@ Token Lexer::readTok() {
 	return makeTok(TokKind::ERROR, cat("Unexpected character: '", (char)ch, '\''));
 }
 
-int Reader::readCh() {
-	if (idx_ >= string_.size()) {
-		return EOF;
-	}
-
-	char ch = string_[idx_++];
-	column_ += 1;
-	if (ch == '\n') {
-		column_ = 0;
-		line_ += 1;
-	}
-
-	return ch;
+int Lexer::readCh() {
+	return reader_.readCh();
 }
 
-int Reader::peekCh(size_t n) {
-	if (idx_ + n >= string_.size()) {
-		return EOF;
-	}
-
-	return string_[idx_ + n];
+int Lexer::peekCh(size_t n) {
+	return reader_.peekCh(n);
 }
 
 }

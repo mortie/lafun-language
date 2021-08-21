@@ -2,9 +2,11 @@ OUT ?= build
 
 SRCS := \
 	src/Lexer.cc \
+	src/Reader.cc \
 	src/main.cc \
 	src/parse.cc \
-	src/print.cc
+	src/print.cc \
+#
 
 CXX ?= g++
 CXXFLAGS ?= -std=c++17 -Wall -Wextra -g
