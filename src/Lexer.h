@@ -16,6 +16,7 @@ enum class Tok {
 	OPEN_BRACKET,
 	CLOSE_BRACKET,
 
+	SEMICOLON,
 	EQ, EQEQ, COLONEQ,
 	PLUS, PLUSEQ,
 	MINUS, MINUSEQ,
@@ -34,7 +35,10 @@ struct Token {
 	int line;
 	int column;
 
-	std::variant<std::string, double> val;
+	struct Empty {};
+	std::variant<Empty, std::string, double> val;
+
+	std::string toString();
 };
 
 class Lexer {

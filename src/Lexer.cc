@@ -42,6 +42,54 @@ static double parseDigitString(const std::string &digits, int radix) {
 	return num;
 }
 
+std::string Token::toString() {
+	std::string str;
+	str += std::to_string(line);
+	str += ":";
+	str += std::to_string(column);
+	str += ": ";
+
+	switch (tok) {
+	case Tok::IDENT: str += "IDENT"; break;
+	case Tok::NUMBER: str += "NUMBER"; break;
+	case Tok::STRING: str += "STRING"; break;
+	case Tok::OPEN_BRACE: str += "OPEN_BRACE"; break;
+	case Tok::CLOSE_BRACE: str += "CLOSE_BRACE"; break;
+	case Tok::OPEN_PAREN: str += "OPEN_PAREN"; break;
+	case Tok::CLOSE_PAREN: str += "CLOSE_PAREN"; break;
+	case Tok::OPEN_BRACKET: str += "OPEN_BRACKET"; break;
+	case Tok::CLOSE_BRACKET: str += "CLOSE_BRACKET"; break;
+	case Tok::SEMICOLON: str += "SEMICOLON"; break;
+	case Tok::EQ: str += "EQ"; break;
+	case Tok::EQEQ: str += "EQEQ"; break;
+	case Tok::COLONEQ: str += "COLONEQ"; break;
+	case Tok::PLUS: str += "PLUS"; break;
+	case Tok::PLUSEQ: str += "PLUSEQ"; break;
+	case Tok::MINUS: str += "MINUS"; break;
+	case Tok::MINUSEQ: str += "MINUSEQ"; break;
+	case Tok::MULT: str += "MULT"; break;
+	case Tok::MULTEQ: str += "MULTEQ"; break;
+	case Tok::DIV: str += "DIV"; break;
+	case Tok::DIVEQ: str += "DIVEQ"; break;
+	case Tok::COLONCOLON: str += "COLONCOLON"; break;
+	case Tok::IF: str += "IF"; break;
+	case Tok::ELSE: str += "ELSE"; break;
+	case Tok::E_O_F: str += "E_O_F"; break;
+	case Tok::ERROR: str += "ERROR"; break;
+	}
+
+	if (std::holds_alternative<std::string>(val)) {
+		str += "; string: '";
+		str += std::get<std::string>(val);
+		str += '\'';
+	} else if (std::holds_alternative<double>(val)) {
+		str += "; number: ";
+		str += std::to_string(std::get<double>(val));
+	}
+
+	return str;
+}
+
 Token Lexer::readTok() {
 	skipWhitespace();
 
@@ -53,6 +101,7 @@ Token Lexer::readTok() {
 	case ')': readCh(); return makeTok(Tok::CLOSE_PAREN);
 	case '[': readCh(); return makeTok(Tok::OPEN_BRACKET);
 	case ']': readCh(); return makeTok(Tok::CLOSE_BRACKET);
+	case ';': readCh(); return makeTok(Tok::SEMICOLON);
 	case EOF: readCh(); return makeTok(Tok::E_O_F);
 	}
 
