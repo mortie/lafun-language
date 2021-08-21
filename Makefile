@@ -10,8 +10,8 @@ LIBSRCS := \
 #
 
 MAINSRCS := \
-	src/main.cc \
-	src/main2.cc \
+	src/fun-cmd.cc \
+	src/lafun-cmd.cc \
 #
 
 ALLSRCS := ${MAINSRCS} ${LIBSRCS}
@@ -26,11 +26,13 @@ ifeq ($(SANITIZE),1)
 	LDFLAGS += -fsanitize=address,undefined
 endif
 
-$(OUT)/lafun: $(OUT)/src/main.cc.o $(patsubst %,$(OUT)/%.o,$(LIBSRCS))
+all: $(OUT)/fun $(OUT)/lafun
+
+$(OUT)/fun: $(OUT)/src/lafun-cmd.cc.o $(patsubst %,$(OUT)/%.o,$(LIBSRCS))
 	@mkdir -p $(@D)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-$(OUT)/lafun2: $(OUT)/src/main2.cc.o $(patsubst %,$(OUT)/%.o,$(LIBSRCS))
+$(OUT)/lafun: $(OUT)/src/lafun-cmd.cc.o $(patsubst %,$(OUT)/%.o,$(LIBSRCS))
 	@mkdir -p $(@D)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
