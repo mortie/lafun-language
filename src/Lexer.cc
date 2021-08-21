@@ -1,6 +1,7 @@
 #include "Lexer.h"
 
 #include <sstream>
+#include <cassert>
 
 namespace lafun {
 
@@ -49,34 +50,7 @@ std::string Token::toString() {
 	str += std::to_string(column);
 	str += ": ";
 
-	switch (tok) {
-	case Tok::IDENT: str += "IDENT"; break;
-	case Tok::NUMBER: str += "NUMBER"; break;
-	case Tok::STRING: str += "STRING"; break;
-	case Tok::OPEN_BRACE: str += "OPEN_BRACE"; break;
-	case Tok::CLOSE_BRACE: str += "CLOSE_BRACE"; break;
-	case Tok::OPEN_PAREN: str += "OPEN_PAREN"; break;
-	case Tok::CLOSE_PAREN: str += "CLOSE_PAREN"; break;
-	case Tok::OPEN_BRACKET: str += "OPEN_BRACKET"; break;
-	case Tok::CLOSE_BRACKET: str += "CLOSE_BRACKET"; break;
-	case Tok::SEMICOLON: str += "SEMICOLON"; break;
-	case Tok::EQ: str += "EQ"; break;
-	case Tok::EQEQ: str += "EQEQ"; break;
-	case Tok::COLONEQ: str += "COLONEQ"; break;
-	case Tok::PLUS: str += "PLUS"; break;
-	case Tok::PLUSEQ: str += "PLUSEQ"; break;
-	case Tok::MINUS: str += "MINUS"; break;
-	case Tok::MINUSEQ: str += "MINUSEQ"; break;
-	case Tok::MULT: str += "MULT"; break;
-	case Tok::MULTEQ: str += "MULTEQ"; break;
-	case Tok::DIV: str += "DIV"; break;
-	case Tok::DIVEQ: str += "DIVEQ"; break;
-	case Tok::COLONCOLON: str += "COLONCOLON"; break;
-	case Tok::IF: str += "IF"; break;
-	case Tok::ELSE: str += "ELSE"; break;
-	case Tok::E_O_F: str += "E_O_F"; break;
-	case Tok::ERROR: str += "ERROR"; break;
-	}
+	str += kindToString(kind);
 
 	if (std::holds_alternative<std::string>(val)) {
 		str += "; string: '";
@@ -90,81 +64,67 @@ std::string Token::toString() {
 	return str;
 }
 
-Token Lexer::readTok() {
-	skipWhitespace();
-
-	int ch = peekCh(0);
-	switch (ch) {
-	case '{': readCh(); return makeTok(Tok::OPEN_BRACE);
-	case '}': readCh(); return makeTok(Tok::CLOSE_BRACE);
-	case '(': readCh(); return makeTok(Tok::OPEN_PAREN);
-	case ')': readCh(); return makeTok(Tok::CLOSE_PAREN);
-	case '[': readCh(); return makeTok(Tok::OPEN_BRACKET);
-	case ']': readCh(); return makeTok(Tok::CLOSE_BRACKET);
-	case ';': readCh(); return makeTok(Tok::SEMICOLON);
-	case EOF: readCh(); return makeTok(Tok::E_O_F);
+std::string Token::kindToString(TokKind kind) {
+	switch (kind) {
+	case TokKind::IDENT: return "IDENT";
+	case TokKind::NUMBER: return "NUMBER";
+	case TokKind::STRING: return "STRING";
+	case TokKind::OPEN_BRACE: return "OPEN_BRACE";
+	case TokKind::CLOSE_BRACE: return "CLOSE_BRACE";
+	case TokKind::OPEN_PAREN: return "OPEN_PAREN";
+	case TokKind::CLOSE_PAREN: return "CLOSE_PAREN";
+	case TokKind::OPEN_BRACKET: return "OPEN_BRACKET";
+	case TokKind::CLOSE_BRACKET: return "CLOSE_BRACKET";
+	case TokKind::SEMICOLON: return "SEMICOLON";
+	case TokKind::EQ: return "EQ";
+	case TokKind::EQEQ: return "EQEQ";
+	case TokKind::COLONEQ: return "COLONEQ";
+	case TokKind::PLUS: return "PLUS";
+	case TokKind::PLUSEQ: return "PLUSEQ";
+	case TokKind::MINUS: return "MINUS";
+	case TokKind::MINUSEQ: return "MINUSEQ";
+	case TokKind::MULT: return "MULT";
+	case TokKind::MULTEQ: return "MULTEQ";
+	case TokKind::DIV: return "DIV";
+	case TokKind::DIVEQ: return "DIVEQ";
+	case TokKind::COLONCOLON: return "COLONCOLON";
+	case TokKind::IF: return "IF";
+	case TokKind::ELSE: return "ELSE";
+	case TokKind::E_O_F: return "E_O_F";
+	case TokKind::ERROR: return "ERROR";
 	}
 
-	int ch2 = peekCh(1);
-	if (ch == '=' && ch2 == '=') {
-		readCh(); readCh();
-		return makeTok(Tok::EQEQ);
-	} else if (ch == ':' && ch2 == '=') {
-		readCh(); readCh();
-		return makeTok(Tok::COLONEQ);
-	} else if (ch == '=') {
-		readCh();
-		return makeTok(Tok::EQ);
-	} else if (ch == '+' && ch2 == '=') {
-		readCh(); readCh();
-		return makeTok(Tok::PLUSEQ);
-	} else if (ch == '+') {
-		readCh();
-		return makeTok(Tok::PLUS);
-	} else if (ch == '-' && ch2 == '=') {
-		readCh(); readCh();
-		return makeTok(Tok::PLUSEQ);
-	} else if (ch == '-') {
-		readCh();
-		return makeTok(Tok::PLUS);
-	} else if (ch == '*' && ch2 == '=') {
-		readCh(); readCh();
-		return makeTok(Tok::MULTEQ);
-	} else if (ch == '*') {
-		readCh(); readCh();
-		return makeTok(Tok::MULT);
-	} else if (ch == '/' && ch2 == '=') {
-		readCh(); readCh();
-		return makeTok(Tok::DIVEQ);
-	} else if (ch == '/') {
-		readCh();
-		return makeTok(Tok::DIV);
-	} else if (ch == ':' && ch2 == ':') {
-		readCh(); readCh();
-		return makeTok(Tok::COLONCOLON);
+	return "(unknown)";
+}
+
+Token &Lexer::peek(size_t n) {
+	assert(n < sizeof(buffer_) / sizeof(*buffer_));
+	while (n >= bufidx_) {
+		buffer_[bufidx_++] = readTok();
 	}
 
-	if (ch == '"' || ch == '\'') {
-		return readString();
-	} else if (ch >= 0 && ch <= 9) {
-		return readNumber();
-	} else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
-		Token ident = readIdent();
-		if (ident.tok != Tok::IDENT) {
-			return ident;
-		}
+	return buffer_[n];
+}
 
-		std::string str = std::get<std::string>(ident.val);
-		if (str == "if") {
-			return makeTok(Tok::IF);
-		} else if (str == "else") {
-			return makeTok(Tok::ELSE);
-		}
-
-		return ident;
+Token Lexer::consume() {
+	if (bufidx_ == 0) {
+		buffer_[bufidx_++] = readTok();
 	}
 
-	return makeTok(Tok::ERROR, cat("Unexpected character: '", (char)ch, '\''));
+	Token tok = std::move(buffer_[0]);
+	for (size_t i = 0; i < bufidx_ - 1; ++i) {
+		buffer_[i] = std::move(buffer_[i + 1]);
+	}
+	bufidx_ -= 1;
+
+	return tok;
+}
+
+void Lexer::reset() {
+	idx_ = 0;
+	line_ = 0;
+	column_ = 0;
+	bufidx_ = 0;
 }
 
 void Lexer::skipWhitespace() {
@@ -185,13 +145,13 @@ Token Lexer::readString() {
 	while (true) {
 		int ch = readCh();
 		if (ch == EOF) {
-			return makeTok(Tok::ERROR, "Unexpected EOF");
+			return makeTok(TokKind::ERROR, "Unexpected EOF");
 		}
 
 		if (ch == '\\') {
 			ch = readCh();
 			if (ch == EOF) {
-				return makeTok(Tok::ERROR, "Unexpected EOF");
+				return makeTok(TokKind::ERROR, "Unexpected EOF");
 			}
 
 			if (ch == 'n') {
@@ -205,11 +165,11 @@ Token Lexer::readString() {
 			} else if (ch == '\'' || ch == '"' || ch == '\\') {
 				str += ch;
 			} else {
-				return makeTok(Tok::ERROR,
+				return makeTok(TokKind::ERROR,
 						cat("Unexpected escaped character '", (char)ch, '\''));
 			}
 		} else if (ch == terminator) {
-			return makeTok(Tok::STRING, std::move(str));
+			return makeTok(TokKind::STRING, std::move(str));
 		} else {
 			str += ch;
 		}
@@ -230,7 +190,7 @@ Token Lexer::readNumber() {
 	}
 
 	if (parseDigit(peekCh(0), radix) < 0) {
-		return makeTok(Tok::ERROR, "Invalid number");
+		return makeTok(TokKind::ERROR, "Invalid number");
 	}
 
 	char digit;
@@ -261,7 +221,7 @@ Token Lexer::readNumber() {
 		fractional /= div;
 	}
 
-	return makeTok(Tok::NUMBER, integral + fractional);
+	return makeTok(TokKind::NUMBER, integral + fractional);
 }
 
 Token Lexer::readIdent() {
@@ -282,7 +242,84 @@ Token Lexer::readIdent() {
 		readCh();
 	}
 
-	return makeTok(Tok::IDENT, std::move(str));
+	return makeTok(TokKind::IDENT, std::move(str));
+}
+
+Token Lexer::readTok() {
+	skipWhitespace();
+
+	int ch = peekCh(0);
+	switch (ch) {
+	case '{': readCh(); return makeTok(TokKind::OPEN_BRACE);
+	case '}': readCh(); return makeTok(TokKind::CLOSE_BRACE);
+	case '(': readCh(); return makeTok(TokKind::OPEN_PAREN);
+	case ')': readCh(); return makeTok(TokKind::CLOSE_PAREN);
+	case '[': readCh(); return makeTok(TokKind::OPEN_BRACKET);
+	case ']': readCh(); return makeTok(TokKind::CLOSE_BRACKET);
+	case ';': readCh(); return makeTok(TokKind::SEMICOLON);
+	case EOF: readCh(); return makeTok(TokKind::E_O_F);
+	}
+
+	int ch2 = peekCh(1);
+	if (ch == '=' && ch2 == '=') {
+		readCh(); readCh();
+		return makeTok(TokKind::EQEQ);
+	} else if (ch == ':' && ch2 == '=') {
+		readCh(); readCh();
+		return makeTok(TokKind::COLONEQ);
+	} else if (ch == '=') {
+		readCh();
+		return makeTok(TokKind::EQ);
+	} else if (ch == '+' && ch2 == '=') {
+		readCh(); readCh();
+		return makeTok(TokKind::PLUSEQ);
+	} else if (ch == '+') {
+		readCh();
+		return makeTok(TokKind::PLUS);
+	} else if (ch == '-' && ch2 == '=') {
+		readCh(); readCh();
+		return makeTok(TokKind::PLUSEQ);
+	} else if (ch == '-') {
+		readCh();
+		return makeTok(TokKind::PLUS);
+	} else if (ch == '*' && ch2 == '=') {
+		readCh(); readCh();
+		return makeTok(TokKind::MULTEQ);
+	} else if (ch == '*') {
+		readCh(); readCh();
+		return makeTok(TokKind::MULT);
+	} else if (ch == '/' && ch2 == '=') {
+		readCh(); readCh();
+		return makeTok(TokKind::DIVEQ);
+	} else if (ch == '/') {
+		readCh();
+		return makeTok(TokKind::DIV);
+	} else if (ch == ':' && ch2 == ':') {
+		readCh(); readCh();
+		return makeTok(TokKind::COLONCOLON);
+	}
+
+	if (ch == '"' || ch == '\'') {
+		return readString();
+	} else if (ch >= 0 && ch <= 9) {
+		return readNumber();
+	} else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
+		Token ident = readIdent();
+		if (ident.kind != TokKind::IDENT) {
+			return ident;
+		}
+
+		std::string str = std::get<std::string>(ident.val);
+		if (str == "if") {
+			return makeTok(TokKind::IF);
+		} else if (str == "else") {
+			return makeTok(TokKind::ELSE);
+		}
+
+		return ident;
+	}
+
+	return makeTok(TokKind::ERROR, cat("Unexpected character: '", (char)ch, '\''));
 }
 
 int Lexer::readCh() {
@@ -300,7 +337,7 @@ int Lexer::readCh() {
 	return ch;
 }
 
-int Lexer::peekCh(int n) {
+int Lexer::peekCh(size_t n) {
 	if (idx_ + n >= string_.size()) {
 		return EOF;
 	}

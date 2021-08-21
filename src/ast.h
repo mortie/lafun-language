@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -53,7 +55,7 @@ struct IfStatm {
 };
 
 struct CodeBlock {
-	std::vector<Statement> exprs;
+	std::vector<Statement> statms;
 };
 
 struct ClassDecl {

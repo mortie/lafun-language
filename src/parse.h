@@ -1,9 +1,23 @@
+#pragma once
+
+#include <stdexcept>
+#include <string>
+
 #include "ast.h"
+#include "Lexer.h"
 
 namespace lafun {
 
-ast::ClassDecl parseClassDecl(std::string name, std::string body);
+struct ParseError: public std::exception {
+	ParseError(int line, int column, std::string message):
+		line(line), column(column), message(message) {}
+	int line;
+	int column;
+	std::string message;
 
-ast::FuncDecl parseFuncDecl(std::string name, std::string args, std::string body);
+	const char *what() const noexcept override { return message.c_str(); }
+};
+
+void parseCodeBlock(Lexer &lexer, ast::CodeBlock &block);
 
 }

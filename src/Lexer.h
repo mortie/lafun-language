@@ -1,10 +1,13 @@
+#pragma once
+
 #include <string>
 #include <cstddef>
 #include <variant>
+#include <vector>
 
 namespace lafun {
 
-enum class Tok {
+enum class TokKind {
 	IDENT,
 	NUMBER,
 	STRING,
@@ -31,7 +34,7 @@ enum class Tok {
 };
 
 struct Token {
-	Tok tok;
+	TokKind kind;
 	int line;
 	int column;
 
@@ -39,13 +42,17 @@ struct Token {
 	std::variant<Empty, std::string, double> val;
 
 	std::string toString();
+	static std::string kindToString(TokKind kind);
 };
 
 class Lexer {
 public:
 	Lexer(const std::string &string): string_(string) {}
 
-	Token readTok();
+	Token &peek(size_t n);
+	Token consume();
+
+	void reset();
 
 private:
 	void skipWhitespace();
@@ -54,16 +61,21 @@ private:
 	Token readNumber();
 	Token readIdent();
 
+	Token readTok();
+
 	int readCh();
-	int peekCh(int n);
-	Token makeTok(Tok tok) { return Token{tok, line_, column_, {}}; }
-	Token makeTok(Tok tok, std::string &&str) { return Token{tok, line_, column_, std::move(str)}; }
-	Token makeTok(Tok tok, double num) { return Token{tok, line_, column_, num}; }
+	int peekCh(size_t n);
+	Token makeTok(TokKind kind) { return {kind, line_, column_, {}}; }
+	Token makeTok(TokKind kind, std::string &&str) { return {kind, line_, column_, std::move(str)}; }
+	Token makeTok(TokKind kind, double num) { return {kind, line_, column_, num}; }
 
 	const std::string &string_;
 	size_t idx_ = 0;
 	int line_ = 0;
 	int column_ = 0;
+
+	Token buffer_[4];
+	size_t bufidx_ = 0;
 };
 
 }
