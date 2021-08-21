@@ -42,8 +42,18 @@ struct FuncCallExpr {
 	std::vector<std::unique_ptr<Expression>> args;
 };
 
+struct CodeBlock;
+struct IfStatm;
+using Statement = std::variant<Expression, IfStatm>;
+
+struct IfStatm {
+	Expression condition;
+	std::unique_ptr<CodeBlock> ifBody;
+	std::unique_ptr<CodeBlock> elseBody;
+};
+
 struct CodeBlock {
-	std::vector<Expression> exprs;
+	std::vector<Statement> exprs;
 };
 
 struct ClassDecl {
