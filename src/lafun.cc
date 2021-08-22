@@ -160,6 +160,8 @@ int main(int argc, const char **argv) {
 
 		*jsStream << fun::prelude;
 		gen.generate(*jsStream);
+
+		*jsStream << "FUN_main();\n";
 	}
 
 	if (latexStream) {
