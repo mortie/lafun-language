@@ -2,6 +2,7 @@
 #include "lafun/resolve.h"
 #include "lafun/codegen.h"
 #include "lafun/print.h"
+#include "lafun/prelude.h"
 #include "fun/IdentResolver.h"
 #include "fun/prelude.h"
 #include "fun/Codegen.h"
@@ -24,6 +25,7 @@ void usage(const char *argv0) {
 	std::cout << "  --help|-h:          Show this help text\n";
 	std::cout << "  --latex <file>:     Write latex to <file>\n";
 	std::cout << "  --output|-o <file>: Write generated javascript to <file>\n";
+	std::cout << "  --no-latex-prelude: Generate latex code without a prelude\n";
 	std::cout << "  --dump-ast:         Dump the parsed syntax tree\n";
 }
 
@@ -38,6 +40,7 @@ int main(int argc, const char **argv) {
 	std::istream *inputStream = nullptr;
 
 	bool doDumpAst = false;
+	bool doAddLatexPrelude = true;
 
 	bool dashes = false;
 	for (int i = 1; i < argc; ++i) {
@@ -83,6 +86,8 @@ int main(int argc, const char **argv) {
 			}
 
 			i += 1;
+		} else if (!dashes && streq(opt, "--no-latex-prelude")) {
+			doAddLatexPrelude = false;
 		} else if (!dashes && streq(opt, "--dump-ast")) {
 			doDumpAst = true;
 		} else if (!dashes && opt[0] == '-' && opt[1] != '\0') {
@@ -158,14 +163,21 @@ int main(int argc, const char **argv) {
 			}
 		}
 
-		*jsStream << fun::prelude;
+		*jsStream << fun::jsPrelude;
 		gen.generate(*jsStream);
-
-		*jsStream << "FUN_main();\n";
+		*jsStream << fun::jsPostlude;
 	}
 
 	if (latexStream) {
+		if (doAddLatexPrelude) {
+			*latexStream << lafun::latexPrelude;
+		}
+
 		lafun::codegen(*latexStream, str, document);
+
+		if (doAddLatexPrelude) {
+			*latexStream << lafun::latexPostlude;
+		}
 	}
 
 	return 0;

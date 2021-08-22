@@ -5,7 +5,8 @@
 
 namespace fun {
 
-extern std::string prelude;
+extern std::string jsPrelude;
+extern std::string jsPostlude;
 extern const std::vector<std::string> preludeNames;
 
 }

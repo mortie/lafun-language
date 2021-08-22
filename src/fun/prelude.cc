@@ -2,7 +2,7 @@
 
 namespace fun {
 
-std::string prelude = R"javascript(/* <Prelude> */
+std::string jsPrelude = R"javascript(/* <Prelude> */
 class FUNclass_Array {
 	constructor() {
 		this.data = [];
@@ -37,6 +37,10 @@ let FUN_true = true;
 let FUN_false = false;
 let FUN_none = null;
 /* </Prelude> */
+)javascript";
+
+std::string jsPostlude = R"javascript(
+FUN_main();
 )javascript";
 
 const std::vector<std::string> preludeNames = {

@@ -8,6 +8,7 @@ LIBSRCS := \
 	src/fun/prelude.cc \
 	src/fun/print.cc \
 	src/lafun/parse.cc \
+	src/lafun/prelude.cc \
 	src/lafun/print.cc \
 	src/lafun/codegen.cc \
 	src/lafun/resolve.cc \
