@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 	parseCodeBlock(lexer, block);
 
 	IdentResolver resolver;
-	resolver.resolveCodeBlock(block);
+	resolver.finalizeBlock(block);
 
 	printCodeBlock(std::cout, block);
 

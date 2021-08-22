@@ -23,7 +23,7 @@ public:
 	void finalize();
 	size_t nextId() { return id_++; }
 
-	void resolveCodeBlock(ast::CodeBlock &block);
+	void finalizeBlock(ast::CodeBlock &block);
 
 private:
 	std::vector<ast::Declaration *> decls_;

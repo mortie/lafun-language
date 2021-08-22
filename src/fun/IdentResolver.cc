@@ -241,12 +241,105 @@ void IdentResolver::finalize() {
 	scope.popScope();
 }
 
-void IdentResolver::resolveCodeBlock(CodeBlock &block) {
+void IdentResolver::finalizeBlock(CodeBlock &block) {
 	ScopeStack scope(*this);
 	finalizeCodeBlock(scope, block);
 }
 
-void resolveInDecl(Declaration &decl, const std::string &name, std::vector<size_t> &ids) {
+static void resolveInDecl(const Declaration &decl, const std::string &name, std::vector<size_t> &ids);
+static void resolveInCodeBlock(const CodeBlock &block, const std::string &name, std::vector<size_t> &ids);
+
+static void resolveInExpression(const Expression &expr, const std::string &name, std::vector<size_t> &ids) {
+	std::visit(overloaded {
+		[&](const StringLiteralExpr &) {},
+		[&](const NumberLiteralExpr &) {},
+		[&](const IdentifierExpr &ident) {
+			if (ident.ident.name == name) {
+				ids.push_back(ident.ident.id);
+			}
+		},
+		[&](const BinaryExpr &bin) {
+			resolveInExpression(*bin.lhs, name, ids);
+			resolveInExpression(*bin.rhs, name, ids);
+		},
+		[&](const FuncCallExpr &call) {
+			resolveInExpression(*call.func, name, ids);
+			for (const std::unique_ptr<Expression> &arg: call.args) {
+				resolveInExpression(*arg, name, ids);
+			}
+		},
+		[&](const AssignmentExpr &assignment) {
+			resolveInExpression(*assignment.lhs, name, ids);
+			resolveInExpression(*assignment.rhs, name, ids);
+		},
+		[&](const DeclAssignmentExpr &assignment) {
+			if (assignment.ident.name == name) {
+				ids.push_back(assignment.ident.id);
+			}
+			resolveInExpression(*assignment.rhs, name, ids);
+		},
+	}, expr);
+}
+
+static void resolveInStatement(const Statement &statm, const std::string &name, std::vector<size_t> &ids) {
+	std::visit(overloaded {
+		[&](const Expression &expr) {
+			resolveInExpression(expr, name, ids);
+		},
+		[&](const IfStatm &ifStatm) {
+			resolveInExpression(ifStatm.condition, name, ids);
+			resolveInCodeBlock(*ifStatm.ifBody, name, ids);
+			if (ifStatm.elseBody) {
+				resolveInCodeBlock(*ifStatm.elseBody, name, ids);
+			}
+		},
+		[&](const Declaration &decl) {
+			resolveInDecl(decl, name, ids);
+		}
+	}, statm);
+}
+
+static void resolveInCodeBlock(const CodeBlock &block, const std::string &name, std::vector<size_t> &ids) {
+	for (const Statement &statm: block.statms) {
+		resolveInStatement(statm, name, ids);
+	}
+}
+
+static void resolveInDecl(const Declaration &decl, const std::string &name, std::vector<size_t> &ids) {
+	auto resolveInArgs = [&](const std::vector<Identifier> &args) {
+		for (const Identifier &ident: args) {
+			if (ident.name == name) {
+				ids.push_back(ident.id);
+			}
+		}
+	};
+
+	std::visit(overloaded {
+		[&](const ClassDecl &classDecl) {
+			if (classDecl.ident.name == name) {
+				ids.push_back(classDecl.ident.id);
+			}
+
+			resolveInArgs(classDecl.args);
+			resolveInCodeBlock(*classDecl.body, name, ids);
+		},
+		[&](const FuncDecl &funcDecl) {
+			if (funcDecl.ident.name == name) {
+				ids.push_back(funcDecl.ident.id);
+			}
+
+			resolveInArgs(funcDecl.args);
+			resolveInCodeBlock(*funcDecl.body, name, ids);
+		},
+		[&](const MethodDecl &methodDecl) {
+			if (methodDecl.ident.name == name) {
+				ids.push_back(methodDecl.ident.id);
+			}
+
+			resolveInArgs(methodDecl.args);
+			resolveInCodeBlock(*methodDecl.body, name, ids);
+		},
+	}, decl);
 }
 
 size_t resolveUpwardsInDecl(Declaration &decl, const std::string &name) {
