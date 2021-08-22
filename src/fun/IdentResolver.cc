@@ -16,7 +16,8 @@ public:
 	void popScope();
 
 	size_t define(const std::string &name);
-	size_t tryDefine(const std::string &name);
+	size_t redefine(const std::string &name);
+	size_t defineTrap(const std::string &name);
 
 	size_t find(const std::string &name);
 	size_t tryFind(const std::string &name);
@@ -25,6 +26,8 @@ private:
 	using Scope = std::unordered_map<std::string, size_t>;
 	std::vector<Scope> scopes_;
 	IdentResolver &resolver_;
+
+	static constexpr size_t TRAP = ~(size_t)0;
 };
 
 void ScopeStack::pushScope() {
@@ -44,14 +47,14 @@ size_t ScopeStack::define(const std::string &name) {
 	return scope[name] = resolver_.nextId();
 }
 
-size_t ScopeStack::tryDefine(const std::string &name) {
+size_t ScopeStack::redefine(const std::string &name) {
 	Scope &scope = scopes_.back();
-	auto it = scope.find(name);
-	if (it == scope.end()) {
-		return scope[name] = resolver_.nextId();
-	}
+	return scope[name] = resolver_.nextId();
+}
 
-	return it->second;
+size_t ScopeStack::defineTrap(const std::string &name) {
+	Scope &scope = scopes_.back();
+	return scope[name] = TRAP;
 }
 
 size_t ScopeStack::find(const std::string &name) {
@@ -68,7 +71,12 @@ size_t ScopeStack::tryFind(const std::string &name) {
 		Scope &scope = *it;
 		auto idIt = scope.find(name);
 		if (idIt != scope.end()) {
-			return idIt->second;
+			size_t id = idIt->second;
+			if (id == TRAP) {
+				throw NameError("Reference of " + name + " before it's defined");
+			}
+
+			return id;
 		}
 	}
 
@@ -103,7 +111,10 @@ static void addExpression(ScopeStack &scope, Expression &expr) {
 			addExpression(scope, *assignment.rhs);
 		},
 		[&](DeclAssignmentExpr &assignment) {
-			scope.tryDefine(assignment.ident.name);
+			// Disallow temporal dead zones by registering the name
+			// in the 'add' step, but as a trap ID, so that it errors if
+			// anything tries to reference it
+			scope.defineTrap(assignment.ident.name);
 			addExpression(scope, *assignment.rhs);
 		},
 	}, expr);
@@ -131,8 +142,8 @@ static void finalizeExpression(ScopeStack &scope, Expression &expr) {
 			finalizeExpression(scope, *assignment.rhs);
 		},
 		[&](DeclAssignmentExpr &assignment) {
-			assignment.ident.id = scope.find(assignment.ident.name);
 			finalizeExpression(scope, *assignment.rhs);
+			assignment.ident.id = scope.redefine(assignment.ident.name);
 		},
 	}, expr);
 }
