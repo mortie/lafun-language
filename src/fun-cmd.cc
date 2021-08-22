@@ -1,6 +1,7 @@
 #include "fun/parse.h"
 #include "fun/Lexer.h"
 #include "fun/print.h"
+#include "fun/IdentResolver.h"
 
 #include <fstream>
 #include <iostream>
@@ -26,20 +27,14 @@ int main(int argc, char **argv) {
 	std::cout << '\n';
 
 	Lexer lexer(str);
-	std::cout << " == Tokens:\n";
-	while (true) {
-		Token tok = lexer.consume();
-		std::cout << tok.toString() << '\n';
-		if (tok.kind == TokKind::E_O_F) {
-			break;
-		}
-	}
-
-	lexer.reset();
 
 	std::cout << "\n == AST:\n";
 	ast::CodeBlock block;
 	parseCodeBlock(lexer, block);
+
+	IdentResolver resolver;
+	resolver.resolveCodeBlock(block);
+
 	printCodeBlock(std::cout, block);
 
 	return 0;
