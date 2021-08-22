@@ -50,6 +50,24 @@ void Codegen::generateStatement(std::ostream &os, const ast::IfStatm *statm) {
 	alreadyDeclared_ = std::move(outerDeclaredNames);
 }
 
+void Codegen::generateStatement(std::ostream &os, const ast::WhileStatm *statm) {
+	// Temporarily swap out the list of names declared in this scope
+	std::unordered_set<std::string> outerDeclaredNames(std::move(alreadyDeclared_));
+
+	os << "while (true) {\n";
+	auto name = generateExpression(os, &statm->condition);
+	os << "if (!(";
+	generateExpressionName(os, name);
+	os << ")) { break; }\n";
+	os << "{\n";
+	generateCodeBlock(os, statm->body.get());
+	os << "}\n";
+	os << "}\n";
+
+	// Move them back
+	alreadyDeclared_ = std::move(outerDeclaredNames);
+}
+
 void Codegen::generateStatement(std::ostream &os, const ast::ReturnStatm *statm) {
 	auto name = generateExpression(os, &statm->expr);
 	os << "return ";

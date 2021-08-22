@@ -51,7 +51,7 @@ enum class TokKind {
 	DIV, DIVEQ,
 	COLONCOLON,
 
-	IF, ELSE, RETURN,
+	IF, ELSE, WHILE, RETURN,
 
 	E_O_F,
 };

@@ -69,6 +69,7 @@ private:
 	void generateStatement(std::ostream &os, const ast::Statement *statm);
 	void generateStatement(std::ostream &os, const ast::Expression *statm);
 	void generateStatement(std::ostream &os, const ast::IfStatm *statm);
+	void generateStatement(std::ostream &os, const ast::WhileStatm *statm);
 	void generateStatement(std::ostream &os, const ast::ReturnStatm *statm);
 
 	size_t counter_ = 0;

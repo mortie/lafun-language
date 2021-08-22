@@ -155,6 +155,15 @@ void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 	}, decl);
 }
 
+static void printWhileStatm(std::ostream &os, const WhileStatm &whileStatm, int depth) {
+	os << "while ";
+	printExpression(os, whileStatm.condition, depth);
+	os << " {\n";
+	printCodeBlock(os, *whileStatm.body, depth + 1);
+	indent(os, depth);
+	os << '}';
+}
+
 static void printReturnStatm(std::ostream &os, const ReturnStatm &ret, int depth) {
 	os << "return ";
 	printExpression(os, ret.expr, depth);
@@ -165,6 +174,7 @@ static void printStatement(std::ostream &os, const Statement &statm, int depth) 
 	std::visit(overloaded {
 		[&](const Expression &expr) { printExpression(os, expr, depth); os << ';'; },
 		[&](const IfStatm &ifStatm) { printIfStatm(os, ifStatm, depth); },
+		[&](const WhileStatm &whileStatm) { printWhileStatm(os, whileStatm, depth); },
 		[&](const ReturnStatm &ret) { printReturnStatm(os, ret, depth); },
 		[&](const Declaration &decl) { printDeclaration(os, decl, depth); },
 	}, statm);

@@ -163,7 +163,6 @@ static void parseIfStatm(Lexer &lexer, IfStatm &statm) {
 	lexer.consume(); // 'if'
 
 	// condition
-	statm.ifBody = std::make_unique<CodeBlock>();
 	parseExpression(lexer, statm.condition);
 
 	// '{'
@@ -171,6 +170,7 @@ static void parseIfStatm(Lexer &lexer, IfStatm &statm) {
 	lexer.consume(); // '{'
 
 	// <code block>
+	statm.ifBody = std::make_unique<CodeBlock>();
 	parseCodeBlock(lexer, *statm.ifBody);
 
 	// '}'
@@ -211,11 +211,33 @@ static void parseIfStatm(Lexer &lexer, IfStatm &statm) {
 	}
 }
 
+static void parseWhileStatm(Lexer &lexer, WhileStatm &statm) {
+	lexer.consume(); // 'while'
+
+	// condition
+	parseExpression(lexer, statm.condition);
+
+	// '{'
+	expect(lexer, TokKind::OPEN_BRACE);
+	lexer.consume(); // '{'
+
+	// <code block>
+	statm.body = std::make_unique<CodeBlock>();
+	parseCodeBlock(lexer, *statm.body);
+
+	// '}'
+	expect(lexer, TokKind::CLOSE_BRACE);
+	lexer.consume(); // '}'
+}
+
 static void parseStatement(Lexer &lexer, Statement &statm) {
 	TokKind kind = lexer.peek(0).kind;
 	if (kind == TokKind::IF) {
 		statm.emplace<IfStatm>();
 		parseIfStatm(lexer, std::get<IfStatm>(statm));
+	} else if (kind == TokKind::WHILE) {
+		statm.emplace<WhileStatm>();
+		parseWhileStatm(lexer, std::get<WhileStatm>(statm));
 	} else if (kind == TokKind::RETURN) {
 		lexer.consume(); // 'return'
 		statm.emplace<ReturnStatm>();
