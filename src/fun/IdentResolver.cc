@@ -181,7 +181,13 @@ static void finalizeCodeBlock(ScopeStack &scope, CodeBlock &block) {
 static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 	std::visit(overloaded {
 		[&](ClassDecl &classDecl) {
+			scope.pushScope();
+			for (Identifier &arg: classDecl.args) {
+				arg.id = scope.define(arg.name);
+			}
+
 			finalizeCodeBlock(scope, *classDecl.body);
+			scope.popScope();
 		},
 		[&](FuncDecl &funcDecl) {
 			scope.pushScope();

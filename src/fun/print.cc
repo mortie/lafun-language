@@ -93,7 +93,19 @@ static void printIfStatm(std::ostream &os, const IfStatm &statm, int depth) {
 void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 	std::visit(overloaded {
 		[&](const ClassDecl &classDecl) {
-			os << "\\class{" << classDecl.ident << "}{\n";
+			os << "\\class{" << classDecl.ident << "}{";
+
+			bool first = true;
+			for (const Identifier &arg: classDecl.args) {
+				if (!first) {
+					os << ", ";
+				}
+
+				os << arg;
+				first = false;
+			}
+
+			os << "}{\n";
 			printCodeBlock(os, *classDecl.body, depth + 1);
 			indent(os, depth);
 			os << '}';

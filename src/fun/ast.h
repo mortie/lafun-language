@@ -84,6 +84,7 @@ struct IfStatm {
 
 struct ClassDecl {
 	Identifier ident;
+	std::vector<Identifier> args;
 	std::unique_ptr<CodeBlock> body;
 };
 

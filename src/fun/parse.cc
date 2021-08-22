@@ -235,6 +235,30 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 		expect(lexer, TokKind::OPEN_BRACE);
 		lexer.consume(); // '{'
 
+		// <args>
+		std::vector<Identifier> args;
+		while (true) {
+			if (lexer.peek(0).kind == TokKind::CLOSE_BRACE) {
+				break;
+			}
+
+			expect(lexer, TokKind::IDENT);
+			args.push_back({std::move(lexer.consume().getStr()), {}});
+
+			if (lexer.peek(0).kind == TokKind::COMMA) {
+				continue;
+			} else if (lexer.peek(0).kind == TokKind::CLOSE_BRACE) {
+				break;
+			} else {
+				fail(lexer.peek(0), {TokKind::COMMA, TokKind::CLOSE_BRACE});
+			}
+		}
+
+		lexer.consume(); // '}'
+
+		expect(lexer, TokKind::OPEN_BRACE);
+		lexer.consume(); // '{'
+
 		// <code block>
 		std::unique_ptr<CodeBlock> body = std::make_unique<CodeBlock>();
 		parseCodeBlock(lexer, *body);
@@ -242,7 +266,7 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 		expect(lexer, TokKind::CLOSE_BRACE);
 		lexer.consume(); // '}'
 
-		decl = ClassDecl{{std::move(name), {}}, std::move(body)};
+		decl = ClassDecl{{std::move(name), {}}, std::move(args), std::move(body)};
 	} else if (identTok.getStr() == "fun") {
 		expect(lexer, TokKind::OPEN_BRACE);
 		lexer.consume(); // '{'
