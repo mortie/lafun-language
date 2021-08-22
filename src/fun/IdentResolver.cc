@@ -240,10 +240,15 @@ static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 }
 
 static void addDeclaration(ScopeStack &scope, Declaration &decl) {
-	std::visit(
-		[&](auto &decl) {
+	std::visit(overloaded {
+		[&](ClassDecl &decl) {
 			scope.addDef(decl.ident);
-		}, decl);
+		},
+		[&](FuncDecl &decl) {
+			scope.addDef(decl.ident);
+		},
+		[&](MethodDecl &) { },
+	}, decl);
 }
 
 void IdentResolver::finalize() {

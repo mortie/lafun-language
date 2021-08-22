@@ -1,5 +1,7 @@
 #include "parse.h"
 
+#include <algorithm>
+
 #include "fun/parse.h"
 #include "fun/IdentResolver.h"
 
@@ -70,7 +72,7 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 			std::string possibleKeyword;
 
 			size_t i;
-			for (i = 1; i < MAX_TOP_LEVEL_KEYWORD_SIZE; i++) {
+			for (i = 1; i < MAX_TOP_LEVEL_KEYWORD_SIZE + 1; i++) {
 				int ch = reader.peekCh(i);
 				if (!(ch >= 'a' && ch <= 'z')) {
 					break;
@@ -166,6 +168,9 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 
 	document.defs = resolver.getDefs();
 	document.refs = resolver.getRefs();
+
+	std::sort(document.defs.begin(), document.defs.end(), [](const fun::ast::Identifier *lhs, const fun::ast::Identifier *rhs) { return lhs->range.start < rhs->range.start; });
+	std::sort(document.refs.begin(), document.refs.end(), [](const fun::ast::Identifier *lhs, const fun::ast::Identifier *rhs) { return lhs->range.start < rhs->range.start; });
 
 	for (size_t i = 0; i < document.blocks.size(); ++i) {
 		LafunBlock &block = document.blocks[i];

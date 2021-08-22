@@ -9,6 +9,7 @@ LIBSRCS := \
 	src/fun/print.cc \
 	src/lafun/parse.cc \
 	src/lafun/print.cc \
+	src/lafun/codegen.cc \
 	src/Reader.cc \
 #
 

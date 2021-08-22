@@ -1,5 +1,6 @@
 #include "lafun/parse.h"
 #include "lafun/print.h"
+#include "lafun/codegen.h"
 
 #include <fstream>
 #include <iostream>
@@ -39,6 +40,9 @@ int main(int argc, char **argv) {
 	for (const auto &ref : document.refs) {
 		std::cout << ref->name << ":" << ref->id << " (" << ref->range.start << ":" << ref->range.end << ")\n";
 	}
+
+	std::cout << "\n == Codegen:\n";
+	codegen(std::cout, str, document);
 
 	return 0;
 }
