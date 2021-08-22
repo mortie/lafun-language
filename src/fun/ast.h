@@ -81,15 +81,21 @@ using Declaration = std::variant<ClassDecl, FuncDecl, MethodDecl>;
 
 struct CodeBlock;
 struct IfStatm;
+struct ReturnStatm;
 using Statement = std::variant<
 	Expression,
 	IfStatm,
+	ReturnStatm,
 	Declaration>;
 
 struct IfStatm {
 	Expression condition;
 	std::unique_ptr<CodeBlock> ifBody;
 	std::unique_ptr<CodeBlock> elseBody;
+};
+
+struct ReturnStatm {
+	Expression expr;
 };
 
 struct ClassDecl {

@@ -87,6 +87,7 @@ std::string Token::kindToString(TokKind kind) {
 	case TokKind::COLONCOLON: return "COLONCOLON";
 	case TokKind::IF: return "IF";
 	case TokKind::ELSE: return "ELSE";
+	case TokKind::RETURN: return "RETURN";
 	case TokKind::E_O_F: return "E_O_F";
 	}
 
@@ -312,6 +313,8 @@ Token Lexer::readTok() {
 			return makeTok(TokKind::IF);
 		} else if (str == "else") {
 			return makeTok(TokKind::ELSE);
+		} else if (str == "return") {
+			return makeTok(TokKind::RETURN);
 		}
 
 		return ident;

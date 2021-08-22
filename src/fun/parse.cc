@@ -216,6 +216,12 @@ static void parseStatement(Lexer &lexer, Statement &statm) {
 	if (kind == TokKind::IF) {
 		statm.emplace<IfStatm>();
 		parseIfStatm(lexer, std::get<IfStatm>(statm));
+	} else if (kind == TokKind::RETURN) {
+		lexer.consume(); // 'return'
+		statm.emplace<ReturnStatm>();
+		parseExpression(lexer, std::get<ReturnStatm>(statm).expr);
+		expect(lexer, TokKind::SEMICOLON);
+		lexer.consume(); // ';'
 	} else if (kind == TokKind::BACKSLASH) {
 		statm.emplace<Declaration>();
 		parseDeclaration(lexer, std::get<Declaration>(statm));

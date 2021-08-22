@@ -155,10 +155,17 @@ void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 	}, decl);
 }
 
+static void printReturnStatm(std::ostream &os, const ReturnStatm &ret, int depth) {
+	os << "return ";
+	printExpression(os, ret.expr, depth);
+	os << ';';
+}
+
 static void printStatement(std::ostream &os, const Statement &statm, int depth) {
 	std::visit(overloaded {
 		[&](const Expression &expr) { printExpression(os, expr, depth); os << ';'; },
 		[&](const IfStatm &ifStatm) { printIfStatm(os, ifStatm, depth); },
+		[&](const ReturnStatm &ret) { printReturnStatm(os, ret, depth); },
 		[&](const Declaration &decl) { printDeclaration(os, decl, depth); },
 	}, statm);
 }

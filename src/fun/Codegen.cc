@@ -24,9 +24,9 @@ void Codegen::generateStatement(std::ostream &os, const ast::Statement *statm) {
 }
 
 void Codegen::generateStatement(std::ostream &os, const ast::Expression *statm) {
-		generateExpressionName(os, generateExpression(os, statm));
-		os << ";\n";
-	}
+	generateExpressionName(os, generateExpression(os, statm));
+	os << ";\n";
+}
 
 void Codegen::generateStatement(std::ostream &os, const ast::IfStatm *statm) {
 	// Temporarily swap out the list of names declared in this scope
@@ -48,6 +48,13 @@ void Codegen::generateStatement(std::ostream &os, const ast::IfStatm *statm) {
 
 	// Move them back
 	alreadyDeclared_ = std::move(outerDeclaredNames);
+}
+
+void Codegen::generateStatement(std::ostream &os, const ast::ReturnStatm *statm) {
+	auto name = generateExpression(os, &statm->expr);
+	os << "return ";
+	generateExpressionName(os, name);
+	os << ";\n";
 }
 
 void Codegen::generateExpressionName(std::ostream &os, ExpressionName name) {

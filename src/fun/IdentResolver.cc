@@ -179,6 +179,7 @@ static void addStatement(ScopeStack &scope, Statement &statm) {
 	std::visit(overloaded {
 		[&](Expression &expr) { addExpression(scope, expr); },
 		[&](IfStatm &) {},
+		[&](ReturnStatm &ret) { addExpression(scope, ret.expr); },
 		[&](Declaration &decl) { addDeclaration(scope, decl); }
 	}, statm);
 }
@@ -198,7 +199,8 @@ static void finalizeStatement(ScopeStack &scope, Statement &statm) {
 
 			scope.popScope();
 		},
-		[&](Declaration &decl) { finalizeDeclaration(scope, decl); }
+		[&](ReturnStatm &ret) { finalizeExpression(scope, ret.expr); },
+		[&](Declaration &decl) { finalizeDeclaration(scope, decl); },
 	}, statm);
 }
 
@@ -326,6 +328,9 @@ static void resolveInStatement(const Statement &statm, const std::string &name, 
 			if (ifStatm.elseBody) {
 				resolveInCodeBlock(*ifStatm.elseBody, name, ids);
 			}
+		},
+		[&](const ReturnStatm &ret) {
+			resolveInExpression(ret.expr, name, ids);
 		},
 		[&](const Declaration &decl) {
 			resolveInDecl(decl, name, ids);
