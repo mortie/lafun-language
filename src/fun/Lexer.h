@@ -9,6 +9,25 @@
 
 namespace fun {
 
+struct LexError: public std::exception {
+	LexError(int line, int column, std::string message):
+			line(line), column(column) {
+		error = std::to_string(line);
+		error += ":";
+		error += std::to_string(column);
+		error += ": ";
+		error += message;
+	}
+
+	int line;
+	int column;
+	std::string error;
+
+	const char *what() const noexcept override {
+		return error.c_str();
+	}
+};
+
 enum class TokKind {
 	IDENT,
 	NUMBER,
@@ -34,7 +53,6 @@ enum class TokKind {
 	IF, ELSE,
 
 	E_O_F,
-	ERROR,
 };
 
 struct Token {
@@ -76,6 +94,9 @@ private:
 	Token makeTok(TokKind kind) { return {kind, reader.line, reader.column, {}}; }
 	Token makeTok(TokKind kind, std::string &&str) { return {kind, reader.line, reader.column, std::move(str)}; }
 	Token makeTok(TokKind kind, double num) { return {kind, reader.line, reader.column, num}; }
+
+	[[noreturn]]
+	void error(std::string &&message) { throw LexError(reader.line, reader.column, std::move(message)); }
 
 	int readCh();
 	int peekCh(size_t n);

@@ -87,7 +87,6 @@ std::string Token::kindToString(TokKind kind) {
 	case TokKind::IF: return "IF";
 	case TokKind::ELSE: return "ELSE";
 	case TokKind::E_O_F: return "E_O_F";
-	case TokKind::ERROR: return "ERROR";
 	}
 
 	return "(unknown)";
@@ -139,13 +138,13 @@ Token Lexer::readString() {
 	while (true) {
 		int ch = readCh();
 		if (ch == EOF) {
-			return makeTok(TokKind::ERROR, "Unexpected EOF");
+			error("Unexpected EOF");
 		}
 
 		if (ch == '\\') {
 			ch = readCh();
 			if (ch == EOF) {
-				return makeTok(TokKind::ERROR, "Unexpected EOF");
+				error("Unexpected EOF");
 			}
 
 			if (ch == 'n') {
@@ -159,8 +158,7 @@ Token Lexer::readString() {
 			} else if (ch == '\'' || ch == '"' || ch == '\\') {
 				str += ch;
 			} else {
-				return makeTok(TokKind::ERROR,
-						concat("Unexpected escaped character '", (char)ch, '\''));
+				error(concat("Unexpected escape character '", (char)ch, '\''));
 			}
 		} else if (ch == terminator) {
 			return makeTok(TokKind::STRING, std::move(str));
@@ -184,7 +182,7 @@ Token Lexer::readNumber() {
 	}
 
 	if (parseDigit(peekCh(0), radix) < 0) {
-		return makeTok(TokKind::ERROR, "Invalid number");
+		error("Invalid number");
 	}
 
 	char digit;
@@ -297,7 +295,7 @@ Token Lexer::readTok() {
 
 	if (ch == '"' || ch == '\'') {
 		return readString();
-	} else if (ch >= 0 && ch <= 9) {
+	} else if (ch >= '0' && ch <= '9') {
 		return readNumber();
 	} else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
 		Token ident = readIdent();
@@ -315,7 +313,7 @@ Token Lexer::readTok() {
 		return ident;
 	}
 
-	return makeTok(TokKind::ERROR, concat("Unexpected character: '", (char)ch, '\''));
+	error(concat("Unexpected character: '", (char)ch, '\''));
 }
 
 int Lexer::readCh() {
