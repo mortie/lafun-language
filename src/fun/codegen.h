@@ -8,7 +8,6 @@
 
 #include "util.h"
 #include "ast.h"
-#include "print.h"
 
 namespace fun {
 
@@ -73,6 +72,8 @@ private:
 	void generateParameters(std::ostream &os, const std::vector<ast::Identifier> &args);
 	void generateClassMethods(std::ostream &os, const ast::MethodDecl *method);
 	void generateClassEnd(std::ostream &os);
+
+	void generateStringLiteral(std::ostream &os, const std::string &str);
 };
 
 }

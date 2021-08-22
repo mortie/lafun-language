@@ -56,8 +56,8 @@ void Codegen::generateExpressionName(std::ostream &os, ExpressionName name) {
 		[&](const ast::Identifier *temp) { os << "FUN_" << temp->name; },
 		[&](const ast::Expression *temp) {
 			std::visit(overloaded {
-				[&](const ast::StringLiteralExpr &) { printExpression(os, *temp); },
-				[&](const ast::NumberLiteralExpr &) { printExpression(os, *temp); },
+				[&](const ast::StringLiteralExpr &str) { generateStringLiteral(os, str.str); },
+				[&](const ast::NumberLiteralExpr &num) { os << num.num; },
 				[&](const ast::IdentifierExpr &ident) { os << "FUN_" << ident.ident.name; },
 				[&](const auto &) { }, // everything else are not valid ExpressionName
 			}, *temp);
@@ -193,5 +193,30 @@ void Codegen::generateClassMethods(std::ostream &os, const ast::MethodDecl *meth
 void Codegen::generateClassEnd(std::ostream &os) {
 	os << "}\n";
 };
+
+void Codegen::generateStringLiteral(std::ostream &os, const std::string &str) {
+	os << '"';
+
+	auto hexNibble = [](int nibble) {
+		if (nibble > 10) {
+			return 'A' + (nibble - 10);
+		} else {
+			return '0' + nibble;
+		}
+	};
+
+	for (char ch: str) {
+		if (ch == '\\' || ch == '"') {
+			os << '\\' << ch;
+		} else if (ch < 30) {
+			unsigned char uch = ch;
+			os << "\\x0" << hexNibble(uch & 0x0f);
+		} else {
+			os << ch;
+		}
+	}
+
+	os << '"';
+}
 
 }
