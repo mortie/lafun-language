@@ -1,10 +1,11 @@
 #include "lafun/parse.h"
 #include "lafun/resolve.h"
 #include "lafun/codegen.h"
+#include "lafun/print.h"
 #include "fun/IdentResolver.h"
 #include "fun/prelude.h"
 #include "fun/Codegen.h"
-#include "lafun/print.h"
+#include "fun/print.h"
 #include "Reader.h"
 
 #include <fstream>
@@ -23,6 +24,7 @@ void usage(const char *argv0) {
 	std::cout << "  --help|-h:          Show this help text\n";
 	std::cout << "  --latex <file>:     Write latex to <file>\n";
 	std::cout << "  --output|-o <file>: Write generated javascript to <file>\n";
+	std::cout << "  --dump-ast:         Dump the parsed syntax tree\n";
 }
 
 int main(int argc, const char **argv) {
@@ -34,6 +36,8 @@ int main(int argc, const char **argv) {
 
 	std::ifstream inputFile;
 	std::istream *inputStream = nullptr;
+
+	bool doDumpAst = false;
 
 	bool dashes = false;
 	for (int i = 1; i < argc; ++i) {
@@ -79,6 +83,8 @@ int main(int argc, const char **argv) {
 			}
 
 			i += 1;
+		} else if (!dashes && streq(opt, "--dump-ast")) {
+			doDumpAst = true;
 		} else if (!dashes && opt[0] == '-' && opt[1] != '\0') {
 			std::cerr << "Unknown option: " << opt << '\n';
 			usage(argv[0]);
@@ -133,11 +139,20 @@ int main(int argc, const char **argv) {
 
 	lafun::resolveLafunReferences(document);
 
+	if (doDumpAst) {
+		for (lafun::ast::LafunBlock &block: document.blocks) {
+			if (std::holds_alternative<lafun::ast::FunBlock>(block)) {
+				lafun::ast::FunBlock &funBlock = std::get<lafun::ast::FunBlock>(block);
+				fun::printDeclaration(std::cout, funBlock.decl);
+				std::cout << '\n';
+			}
+		}
+	}
+
 	if (jsStream) {
 		fun::Codegen gen;
 		for (lafun::ast::LafunBlock &block: document.blocks) {
 			if (std::holds_alternative<lafun::ast::FunBlock>(block)) {
-				std::cerr << "Hello adding fun block\n";
 				lafun::ast::FunBlock &funBlock = std::get<lafun::ast::FunBlock>(block);
 				gen.add(&funBlock.decl);
 			}
