@@ -27,7 +27,7 @@ static std::ostream &operator<<(std::ostream &os, const Identifier &ident) {
 	return os;
 }
 
-static void printExpression(std::ostream &os, const Expression &expr, int depth) {
+void printExpression(std::ostream &os, const Expression &expr, int depth) {
 	std::visit(overloaded {
 		[&](const StringLiteralExpr &str) { os << '"' << str.str << '"'; },
 		[&](const NumberLiteralExpr &num) { os << num.num; },

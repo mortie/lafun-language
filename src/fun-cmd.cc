@@ -2,6 +2,7 @@
 #include "fun/Lexer.h"
 #include "fun/print.h"
 #include "fun/IdentResolver.h"
+#include "fun/codegen.h"
 
 #include <fstream>
 #include <iostream>
@@ -36,6 +37,13 @@ int main(int argc, char **argv) {
 	resolver.resolveCodeBlock(block);
 
 	printCodeBlock(std::cout, block);
+
+	std::cout << "\n == Codegen:\n";
+	Codegen codegen;
+	for (const auto &statm : block.statms) {
+		codegen.add(&statm);
+	}
+	codegen.generate(std::cout);
 
 	return 0;
 }

@@ -5,6 +5,7 @@ LIBSRCS := \
 	src/fun/Lexer.cc \
 	src/fun/parse.cc \
 	src/fun/print.cc \
+	src/fun/codegen.cc \
 	src/lafun/parse.cc \
 	src/lafun/print.cc \
 	src/Reader.cc \
