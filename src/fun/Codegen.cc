@@ -60,7 +60,7 @@ void Codegen::generateExpressionName(std::ostream &os, ExpressionName name) {
 				[&](const ast::StringLiteralExpr &str) { generateStringLiteral(os, str.str); },
 				[&](const ast::NumberLiteralExpr &num) { os << num.num; },
 				[&](const ast::IdentifierExpr &ident) { os << "FUN_" << ident.ident.name; },
-				[&](const auto &) { }, // everything else are not valid ExpressionName
+				[&](const auto &) { error("Encountered illegal expression name in codegen"); },
 			}, *temp);
 		},
 	}, name);
@@ -114,11 +114,12 @@ Codegen::ExpressionName Codegen::generateExpression(std::ostream &os, const ast:
 			// Emit lhs = rhsName
 			// Return lhs as the expression name
 			auto rhsName = generateExpression(os, expr2.rhs.get());
-			generateExpressionName(os, expr2.lhs.get());
+			auto lhsName = generateLvalue(os, expr2.lhs.get());
+			generateExpressionName(os, lhsName);
 			os << " = ";
 			generateExpressionName(os, rhsName);
 			os << ";\n";
-			return expr2.lhs.get();
+			return lhsName;
 		},
 		[&](const ast::DeclAssignmentExpr &expr2) -> ExpressionName {
 			// Recursively generate the rhs
@@ -146,6 +147,21 @@ Codegen::ExpressionName Codegen::generateExpression(std::ostream &os, const ast:
 			os << ";\n";
 			return NameLookup{temp, &expr2.name};
 		},
+	}, *expr);
+}
+
+Codegen::ExpressionName Codegen::generateLvalue(std::ostream &os, const ast::Expression *expr) {
+	return std::visit(overloaded {
+		[&](const ast::IdentifierExpr &) -> ExpressionName { return expr; },
+		[&](const ast::LookupExpr &lookup) -> ExpressionName {
+			auto lhsName = generateExpression(os, lookup.lhs.get());
+			auto temp = count();
+			os << "const temp" << temp << " = ";
+			generateExpressionName(os, lhsName);
+			os << ";\n";
+			return NameLookup{temp, &lookup.name};
+		},
+		[&](const auto &) -> ExpressionName { error("Invalid lvalue in codegen"); },
 	}, *expr);
 }
 

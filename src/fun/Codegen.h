@@ -11,6 +11,17 @@
 
 namespace fun {
 
+struct CodegenError: public std::exception {
+	CodegenError(std::string message): error(message) { }
+
+	std::string error;
+
+	const char *what() const noexcept override {
+		return error.c_str();
+	}
+};
+
+
 class Codegen {
 	using Methods = std::unordered_map<std::string, const ast::MethodDecl *>;
 	using ClassAndMethods = std::pair<const ast::ClassDecl *, std::unordered_map<std::string, const ast::MethodDecl *>>;
@@ -66,6 +77,7 @@ private:
 
 	void generateExpressionName(std::ostream &os, ExpressionName name);
 	ExpressionName generateExpression(std::ostream &os, const ast::Expression *expr);
+	ExpressionName generateLvalue(std::ostream &os, const ast::Expression *expr);
 	void generateFun(std::ostream &os, const ast::FuncDecl *fun);
 	void generateCodeBlock(std::ostream &os, const ast::CodeBlock *block);
 	void generateClass(std::ostream &os, const ClassAndMethods &clas);
@@ -75,6 +87,9 @@ private:
 	void generateClassEnd(std::ostream &os);
 
 	void generateStringLiteral(std::ostream &os, const std::string &str);
+
+	[[noreturn]]
+	void error(std::string &&message) { throw CodegenError(std::move(message)); }
 };
 
 }
