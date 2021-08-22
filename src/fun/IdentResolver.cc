@@ -246,4 +246,27 @@ void IdentResolver::resolveCodeBlock(CodeBlock &block) {
 	finalizeCodeBlock(scope, block);
 }
 
+void resolveInDecl(Declaration &decl, const std::string &name, std::vector<size_t> &ids) {
+}
+
+size_t resolveUpwardsInDecl(Declaration &decl, const std::string &name) {
+	std::vector<size_t> ids;
+	resolveInDecl(decl, name, ids);
+	if (ids.size() > 0) {
+		return ids.back();
+	}
+
+	return 0;
+}
+
+size_t resolveDownwardsInDecl(Declaration &decl, const std::string &name) {
+	std::vector<size_t> ids;
+	resolveInDecl(decl, name, ids);
+	if (ids.size() > 0) {
+		return ids.front();
+	}
+
+	return 0;
+}
+
 }

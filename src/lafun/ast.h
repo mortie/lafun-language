@@ -13,10 +13,12 @@ struct RawLatex {
 
 struct IdentifierUpwardsRef {
 	std::string ident;
+	size_t id = 0;
 };
 
 struct IdentifierDownwardsRef {
 	std::string ident;
+	size_t id = 0;
 };
 
 using LafunBlock = std::variant<

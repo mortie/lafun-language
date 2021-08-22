@@ -30,4 +30,7 @@ private:
 	size_t id_ = 1;
 };
 
+size_t resolveUpwardsInDecl(ast::Declaration &decl, const std::string &name);
+size_t resolveDownwardsInDecl(ast::Declaration &decl, const std::string &name);
+
 }

@@ -1,12 +1,41 @@
 #include "parse.h"
 
 #include "fun/parse.h"
+#include "fun/IdentResolver.h"
 
 using namespace lafun::ast;
 
 namespace lafun {
 
 #define MAX_TOP_LEVEL_KEYWORD_SIZE 5
+
+static size_t findUpwards(LafunDocument &doc, size_t idx, const std::string &name) {
+	for (ssize_t i = idx - 1; i >= 0; --i) {
+		LafunBlock &block = doc[i];
+		if (std::holds_alternative<fun::ast::Declaration>(block)) {
+			size_t id = fun::resolveUpwardsInDecl(std::get<fun::ast::Declaration>(block), name);
+			if (id != 0) {
+				return id;
+			}
+		}
+	}
+
+	return 0;
+}
+
+static size_t findDownwards(LafunDocument &doc, size_t idx, const std::string &name) {
+	for (size_t i = idx + 1; i < doc.size(); ++i) {
+		LafunBlock &block = doc[i];
+		if (std::holds_alternative<fun::ast::Declaration>(block)) {
+			size_t id = fun::resolveDownwardsInDecl(std::get<fun::ast::Declaration>(block), name);
+			if (id != 0) {
+				return id;
+			}
+		}
+	}
+
+	return 0;
+}
 
 void parseLafun(Reader &reader, LafunDocument &document) {
 	std::string currentBlock;
@@ -101,6 +130,26 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 			break;
 		} else {
 			currentBlock += reader.readCh();
+		}
+	}
+
+	fun::IdentResolver resolver;
+	for (LafunBlock &block: document) {
+		if (std::holds_alternative<fun::ast::Declaration>(block)) {
+			resolver.add(&std::get<fun::ast::Declaration>(block));
+		}
+	}
+
+	resolver.finalize();
+
+	for (size_t i = 0; i < document.size(); ++i) {
+		LafunBlock &block = document[i];
+		if (std::holds_alternative<IdentifierUpwardsRef>(block)) {
+			IdentifierUpwardsRef &ref = std::get<IdentifierUpwardsRef>(block);
+			ref.id = findUpwards(document, i, ref.ident);
+		} else if (std::holds_alternative<IdentifierDownwardsRef>(block)) {
+			IdentifierDownwardsRef &ref = std::get<IdentifierDownwardsRef>(block);
+			ref.id = findDownwards(document, i, ref.ident);
 		}
 	}
 }
