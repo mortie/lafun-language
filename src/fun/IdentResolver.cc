@@ -8,35 +8,6 @@ using namespace fun::ast;
 
 namespace fun {
 
-class ScopeStack {
-public:
-	ScopeStack(IdentResolver &resolver): resolver_(resolver) {
-		scopes_.emplace_back();
-		scopes_.back()["__builtins"] = BUILTINS;
-	}
-
-	void pushScope();
-	void popScope();
-
-	void addDef(Identifier &ident);
-	void addRedef(Identifier &ident);
-	void addRef(Identifier &ident);
-
-	size_t define(const std::string &name);
-	size_t redefine(const std::string &name);
-	size_t defineTrap(const std::string &name);
-
-	size_t find(const std::string &name);
-	size_t tryFind(const std::string &name);
-
-private:
-	using Scope = std::unordered_map<std::string, size_t>;
-	std::vector<Scope> scopes_;
-	IdentResolver &resolver_;
-
-	static constexpr size_t TRAP = ~(size_t)0;
-	static constexpr size_t BUILTINS = ~(size_t)1;
-};
 
 void ScopeStack::pushScope() {
 	scopes_.emplace_back();
@@ -50,13 +21,19 @@ void ScopeStack::addDef(Identifier &ident) {
 	ident.id = define(ident.name);
 	resolver_.addDef(&ident);
 }
+
 void ScopeStack::addRedef(Identifier &ident) {
 	ident.id = redefine(ident.name);
 	resolver_.addDef(&ident);
 }
+
 void ScopeStack::addRef(Identifier &ident) {
 	ident.id = find(ident.name);
 	resolver_.addRef(&ident);
+}
+
+void ScopeStack::addBuiltin(const std::string &name) {
+	scopes_[0][name] = BUILTIN;
 }
 
 size_t ScopeStack::define(const std::string &name) {
@@ -260,23 +237,21 @@ static void addDeclaration(ScopeStack &scope, Declaration &decl) {
 }
 
 void IdentResolver::finalize() {
-	ScopeStack scope(*this);
-	scope.pushScope();
+	scope_.pushScope();
 
 	for (auto decl: decls_) {
-		addDeclaration(scope, *decl);
+		addDeclaration(scope_, *decl);
 	}
 
 	for (auto decl: decls_) {
-		finalizeDeclaration(scope, *decl);
+		finalizeDeclaration(scope_, *decl);
 	}
 
-	scope.popScope();
+	scope_.popScope();
 }
 
 void IdentResolver::finalizeBlock(CodeBlock &block) {
-	ScopeStack scope(*this);
-	finalizeCodeBlock(scope, block);
+	finalizeCodeBlock(scope_, block);
 }
 
 static void resolveInDecl(const Declaration &decl, const std::string &name, std::vector<size_t> &ids);

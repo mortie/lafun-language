@@ -2,26 +2,22 @@
 
 namespace fun {
 
-const char *jsPrelude = R"javascript(
-const FUN___builtins = {
-	console,
-	createArray: function() { return new Array(); },
-	createMap: function() { return new Map(); },
-};
+const char *prelude = R"javascript(
+function FUN_Array() {
+	return new Array();
+}
+
+function FUN_Map() {
+	return new Map();
+}
+
+function FUN__print() {
+	console.log.apply(console, arguments);
+}
 )javascript";
 
-const char *funPrelude = R"fun(
-\fun{print}{str}{
-	__builtins.console.log(str);
-}
-
-\fun{Array}{}{
-	return __builtins.CreateArray();
-}
-
-\fun{Map}{}{
-	return __builtins.CreateMap();
-}
-)fun";
+const std::vector<std::string> preludeNames = {
+	"Array", "Map", "print",
+};
 
 }

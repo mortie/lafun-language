@@ -21,7 +21,6 @@ int main(int argc, char **argv) {
 	stream.open(argv[1]);
 
 	std::stringstream ss;
-	ss << funPrelude;
 	ss << stream.rdbuf();
 	std::string str = ss.str();
 
@@ -36,12 +35,15 @@ int main(int argc, char **argv) {
 	parseCodeBlock(lexer, block);
 
 	IdentResolver resolver;
-	resolver.finalizeBlock(block);
+	for (const std::string &name: preludeNames) {
+		resolver.addBuiltin(name);
+	}
 
+	resolver.finalizeBlock(block);
 	printCodeBlock(std::cout, block);
 
 	std::cout << "\n == Codegen:\n";
-	std::cout << jsPrelude;
+	std::cout << prelude;
 	Codegen codegen;
 	for (const auto &statm : block.statms) {
 		codegen.add(&statm);
