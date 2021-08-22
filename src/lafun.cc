@@ -1,4 +1,6 @@
 #include "lafun/parse.h"
+#include "lafun/resolve.h"
+#include "lafun/codegen.h"
 #include "fun/IdentResolver.h"
 #include "fun/prelude.h"
 #include "fun/Codegen.h"
@@ -116,7 +118,20 @@ int main(int argc, const char **argv) {
 	}
 
 	lafun::ast::LafunDocument document;
-	lafun::parseLafun(reader, document, resolver);
+	lafun::parseLafun(reader, document);
+
+	for (auto &block: document.blocks) {
+		if (std::holds_alternative<lafun::ast::FunBlock>(block)) {
+			resolver.add(&std::get<lafun::ast::FunBlock>(block).decl);
+		}
+	}
+
+	resolver.finalize();
+
+	document.defs = resolver.getDefs();
+	document.refs = resolver.getRefs();
+
+	lafun::resolveLafunReferences(document);
 
 	if (jsStream) {
 		fun::Codegen gen;
@@ -133,7 +148,7 @@ int main(int argc, const char **argv) {
 	}
 
 	if (latexStream) {
-		lafun::printLafunDocument(*latexStream, document);
+		lafun::codegen(*latexStream, str, document);
 	}
 
 	return 0;
