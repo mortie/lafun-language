@@ -135,7 +135,7 @@ private:
 					auto lhsName = generateExpression(os, expr2.lhs.get());
 					auto rhsName = generateExpression(os, expr2.rhs.get());
 					auto temp = count();
-					os << "temp" << temp << " = ";
+					os << "const temp" << temp << " = ";
 					generateExpressionName(os, lhsName);
 					switch (expr2.op) {
 						case ast::BinaryExpr::ADD: os << " + "; break;
@@ -157,7 +157,7 @@ private:
 						argNames.emplace_back(generateExpression(os, arg.get()));
 					}
 					auto temp = count();
-					os << "temp" << temp << " = ";
+					os << "const temp" << temp << " = ";
 					generateExpressionName(os, funName);
 					os << "(";
 					for (const auto &argName : argNames) {
