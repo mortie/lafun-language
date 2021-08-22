@@ -17,11 +17,21 @@ static void indent(std::ostream &os, int depth) {
 	}
 }
 
+static std::ostream &operator<<(std::ostream &os, const Identifier &ident) {
+	if (ident.id == 0) {
+		os << ident.name;
+	} else {
+		os << '<' << ident.name << ':' << ident.id << '>';
+	}
+
+	return os;
+}
+
 static void printExpression(std::ostream &os, const Expression &expr, int depth) {
 	std::visit(overloaded {
 		[&](const StringLiteralExpr &str) { os << '"' << str.str << '"'; },
 		[&](const NumberLiteralExpr &num) { os << num.num; },
-		[&](const IdentifierExpr &ident) { os << ident.ident.name; },
+		[&](const IdentifierExpr &ident) { os << ident.ident; },
 		[&](const BinaryExpr &bin) {
 			printExpression(os, *bin.lhs, depth);
 
@@ -56,7 +66,7 @@ static void printExpression(std::ostream &os, const Expression &expr, int depth)
 			printExpression(os, *assignment.rhs, depth);
 		},
 		[&](const DeclAssignmentExpr &assignment) {
-			os << assignment.ident.name;
+			os << assignment.ident;
 			os << " := ";
 			printExpression(os, *assignment.rhs, depth);
 		},
@@ -83,13 +93,13 @@ static void printIfStatm(std::ostream &os, const IfStatm &statm, int depth) {
 void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 	std::visit(overloaded {
 		[&](const ClassDecl &classDecl) {
-			os << "\\class{" << classDecl.ident.name << "}{\n";
+			os << "\\class{" << classDecl.ident << "}{\n";
 			printCodeBlock(os, *classDecl.body, depth + 1);
 			indent(os, depth);
 			os << '}';
 		},
 		[&](const FuncDecl &funcDecl) {
-			os << "\\fun{" << funcDecl.ident.name << "}{";
+			os << "\\fun{" << funcDecl.ident << "}{";
 
 			bool first = true;
 			for (const Identifier &arg: funcDecl.args) {
@@ -97,7 +107,7 @@ void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 					os << ", ";
 				}
 
-				os << arg.name;
+				os << arg;
 				first = false;
 			}
 
@@ -107,7 +117,7 @@ void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 			os << '}';
 		},
 		[&](const MethodDecl &methodDecl) {
-			os << "\\fun{" << methodDecl.classIdent.name << "::" << methodDecl.ident.name << "}{";
+			os << "\\fun{" << methodDecl.classIdent << "::" << methodDecl.ident << "}{";
 
 			bool first = true;
 			for (const Identifier &arg: methodDecl.args) {
@@ -115,7 +125,7 @@ void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 					os << ", ";
 				}
 
-				os << arg.name;
+				os << arg;
 				first = false;
 			}
 
