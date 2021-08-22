@@ -16,6 +16,8 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 		int ch = reader.peekCh(0);
 		if (ch == '\\') {
 			if (reader.peekCh(1) == '\\') {
+				reader.readCh();
+				reader.readCh();
 				currentBlock += "\\\\";
 				continue;
 			}
