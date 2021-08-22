@@ -87,6 +87,11 @@ If you wish to use a custom LaTeX prelude, use `--no-latex-prelude`.
 $ ./build/lafun examples/readme-with-prelude.fun --no-latex-prelude --latex test.tex
 ```
 
+It *should* work with any modern C++ compiler which supports C++17 or newer.
+The Makefile also assumes a compiler with a GCC-like interface.
+It has been tested on Ubuntu 21.04 with GCC 12.2.0 and with Clang 12.0.1,
+and on macOS with Apple Clang 12.0.5.
+
 # The Language
 
 LaFuN actually consists of two "languages"; the outer language, called LaFuN,
