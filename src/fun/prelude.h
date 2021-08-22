@@ -5,7 +5,7 @@
 
 namespace fun {
 
-extern const char *prelude;
+extern std::string prelude;
 extern const std::vector<std::string> preludeNames;
 
 }
