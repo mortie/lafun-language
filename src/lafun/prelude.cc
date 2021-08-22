@@ -22,7 +22,7 @@ std::string latexPrelude = R"latex(
 \begin{document}
 )latex";
 
-std::string latexPostlude = R"latex("
+std::string latexPostlude = R"latex(
 \end{document}
 )latex";
 
