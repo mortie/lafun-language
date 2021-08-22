@@ -85,3 +85,96 @@ If you wish to use a custom LaTeX prelude, use `--no-latex-prelude`.
 ```
 $ ./build/lafun examples/readme-with-prelude.fun --no-latex-prelude --latex test.tex
 ```
+
+# The Language
+
+LaFuN actually consists of two "languages"; the outer language, called LaFuN,
+and the inner language, called FuN. The LaFuN parser handles all the LaTeX
+parsing and detects `\fun` and `\class` definitions, and hands them over to the
+FuN parser.
+
+The FuN language is a dynamic language. The implementation contained in this
+repo has a code generator which generates JavaScript code.
+
+FuN has functions:
+
+```
+\fun{functionName}{argument1, argument2}{
+	<body>
+}
+```
+
+The body of a function is a list of statements. The statements are:
+
+* A function or class declaration: `\fun{name}{arguments}{body}` or `\class{name}{args}{body}`
+* Any expression, followed by a semicolon
+* An if statement: `if <expression> { <body> }`
+* An if statement with an else-if part: `if <expression> { <body> } else if <expression2> { <else-body> }`
+* An if statement with an else part: `if <expression> { <body> } else { <else-body> }`
+* A while statement: `while <expression> { <body> }`
+* A return statement: `return <expression>`
+
+The supported expression types are:
+
+* Identifiers: `foo`
+* Number literals: `100`, `0xff`
+* String literals: `"Hello World"`
+* Binary expressions: `<expr> <operator> <expr>`; like `"Hello " + name`
+* Function calls: `sayHelloTo("Mary")`
+* Declaration assignments: `name := "Bob"`
+* Assignments to an existing variable: `name = "Alice"`
+* Look-ups by name: `someObject.someProperty`
+* Assignment through property names: `person.name = "Carol"`
+
+In addition to functions, FuN has classes:
+
+```
+\class{ClassName}{argument1, argument2}{
+	<body>
+}
+```
+
+The body of a class definition is its constructor function, and its arguments
+are the arguments to the constructor. The constructor also has an implicit variable
+called `self`, which represents the object being constructed.
+
+Here's an example class:
+
+```
+\class{Vector2D}{x, y}{
+	self.x = x;
+	self.y = y;
+}
+```
+
+When we have a class, we can add methods to it with a `\fun` declaration:
+
+```
+\fun{Vector2D::scale}{k}{
+	self.x = self.x * k;
+	self.y = self.y * k;
+}
+
+\fun{Vector2D::add}{other}{
+	self.x = self.x + other.x;
+	self.y = self.y + other.y;
+}
+
+\fun{Vector2D::toString}{}{
+	return "Vector2D{" + self.x + ", " +self.y + "}";
+}
+```
+
+Creating an instance of a class is just like aclling a function,
+so `Vector2D(10, 20)` creates a vector with `x=10` and `y=20`.
+
+Here's an example program using our vector:
+
+```
+\fun{main}{}{
+	vec := Vector2D(10, 20);
+	vec.scale(0.5);
+	vec.add(Vector2D(5, 5));
+	print(vec.toString());
+}
+```
