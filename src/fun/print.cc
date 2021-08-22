@@ -21,7 +21,8 @@ static std::ostream &operator<<(std::ostream &os, const Identifier &ident) {
 	if (ident.id == 0) {
 		os << ident.name;
 	} else {
-		os << '<' << ident.name << ':' << ident.id << '>';
+		os << '<' << ident.name << ':' << ident.id << ';'
+			<< ident.range.start << '-' << ident.range.end << '>';
 	}
 
 	return os;

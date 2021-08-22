@@ -74,7 +74,9 @@ static void parseExpression(Lexer &lexer, Expression &expr) {
 	} else if (kind == TokKind::NUMBER) {
 		expr = NumberLiteralExpr{lexer.consume().getNum()};
 	} else if (kind == TokKind::IDENT) {
-		expr = IdentifierExpr{std::move(lexer.consume().getStr())};
+		Token tok = lexer.consume();
+		Identifier ident{std::move(tok.getStr()), tok.range};
+		expr = IdentifierExpr{ident};
 	} else {
 		fail(lexer.peek(0), TokKind::IDENT);
 	}
@@ -123,8 +125,10 @@ static void parseExpression(Lexer &lexer, Expression &expr) {
 
 			lexer.consume(); // ':='
 
+			Identifier &ident = std::get<IdentifierExpr>(expr).ident;
+
 			DeclAssignmentExpr assignment;
-			assignment.ident.name = std::get<IdentifierExpr>(expr).ident.name;
+			assignment.ident = ident;
 			assignment.rhs = std::make_unique<Expression>();
 			parseExpression(lexer, *assignment.rhs);
 			expr = std::move(assignment);
@@ -227,7 +231,8 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 		lexer.consume(); // '{'
 
 		expect(lexer, TokKind::IDENT);
-		std::string name = std::move(lexer.consume().getStr());
+		Token nameTok = lexer.consume();
+		Identifier ident{std::move(nameTok.getStr()), nameTok.range};
 
 		expect(lexer, TokKind::CLOSE_BRACE);
 		lexer.consume(); // '}'
@@ -243,7 +248,8 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 			}
 
 			expect(lexer, TokKind::IDENT);
-			args.push_back({std::move(lexer.consume().getStr()), {}});
+			Token tok = lexer.consume();
+			args.push_back({std::move(tok.getStr()), tok.range});
 
 			if (lexer.peek(0).kind == TokKind::COMMA) {
 				continue;
@@ -266,14 +272,14 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 		expect(lexer, TokKind::CLOSE_BRACE);
 		lexer.consume(); // '}'
 
-		decl = ClassDecl{{std::move(name), {}}, std::move(args), std::move(body)};
+		decl = ClassDecl{ident, std::move(args), std::move(body)};
 	} else if (identTok.getStr() == "fun") {
 		expect(lexer, TokKind::OPEN_BRACE);
 		lexer.consume(); // '{'
 
 		expect(lexer, TokKind::IDENT);
-		std::string name1 = std::move(lexer.consume().getStr());
-		std::string name2 = "";
+		Token name1Tok = lexer.consume();
+		Token name2Tok;
 		bool isMethod = false;
 
 		if (lexer.peek(0).kind == TokKind::COLONCOLON) {
@@ -281,7 +287,7 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 			lexer.consume(); // '::'
 
 			expect(lexer, TokKind::IDENT);
-			name2 = std::move(lexer.consume().getStr());
+			name2Tok = lexer.consume();
 		}
 
 		expect(lexer, TokKind::CLOSE_BRACE);
@@ -298,7 +304,8 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 			}
 
 			expect(lexer, TokKind::IDENT);
-			args.push_back({std::move(lexer.consume().getStr()), {}});
+			Token tok = lexer.consume();
+			args.push_back({std::move(tok.getStr()), tok.range});
 
 			if (lexer.peek(0).kind == TokKind::COMMA) {
 				continue;
@@ -322,12 +329,15 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 		lexer.consume(); // '}'
 
 		if (isMethod) {
+			Identifier classIdent{std::move(name1Tok.getStr()), name1Tok.range};
+			Identifier ident{std::move(name2Tok.getStr()), name2Tok.range};
 			decl = MethodDecl{
-				{std::move(name1), {}}, {std::move(name2), {}},
+				std::move(classIdent), std::move(ident),
 				std::move(args), std::move(body),
 			};
 		} else {
-			decl = FuncDecl{{std::move(name1), {}}, std::move(args), std::move(body)};
+			Identifier ident{std::move(name1Tok.getStr()), name1Tok.range};
+			decl = FuncDecl{std::move(ident), std::move(args), std::move(body)};
 		}
 	} else {
 		throw ParseError(

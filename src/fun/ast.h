@@ -12,8 +12,8 @@ namespace fun::ast {
 
 struct Identifier {
 	std::string name;
-	size_t id = 0;
 	ByteRange range;
+	size_t id = 0;
 };
 
 struct StringLiteralExpr;
