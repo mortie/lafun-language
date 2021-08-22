@@ -64,7 +64,7 @@ size_t ScopeStack::find(const std::string &name) {
 }
 
 size_t ScopeStack::tryFind(const std::string &name) {
-	for (auto it = scopes_.rbegin(); it != scopes_.rend(); --it) {
+	for (auto it = scopes_.rbegin(); it != scopes_.rend(); ++it) {
 		Scope &scope = *it;
 		auto idIt = scope.find(name);
 		if (idIt != scope.end()) {
@@ -80,21 +80,8 @@ void IdentResolver::add(Declaration *decl) {
 }
 
 static void finalizeCodeBlock(ScopeStack &scope, CodeBlock &block);
+static void addDeclaration(ScopeStack &scope, Declaration &decl);
 static void finalizeDeclaration(ScopeStack &scope, Declaration &decl);
-
-static void addDeclaration(ScopeStack &scope, Declaration &decl) {
-	std::visit(overloaded {
-		[&](ClassDecl &classDecl) {
-			classDecl.ident.id = scope.define(classDecl.ident.name);
-		},
-		[&](FuncDecl &funcDecl) {
-			funcDecl.ident.id = scope.define(funcDecl.ident.name);
-		},
-		[&](MethodDecl &methodDecl) {
-			methodDecl.ident.id = scope.define(methodDecl.ident.name);
-		},
-	}, decl);
-}
 
 static void addExpression(ScopeStack &scope, Expression &expr) {
 	std::visit(overloaded {
@@ -105,7 +92,12 @@ static void addExpression(ScopeStack &scope, Expression &expr) {
 			addExpression(scope, *bin.lhs);
 			addExpression(scope, *bin.rhs);
 		},
-		[&](FuncCallExpr &call) { addExpression(scope, *call.func); },
+		[&](FuncCallExpr &call) {
+			addExpression(scope, *call.func);
+			for (std::unique_ptr<Expression> &arg: call.args) {
+				addExpression(scope, *arg);
+			}
+		},
 		[&](AssignmentExpr &assignment) {
 			addExpression(scope, *assignment.lhs);
 			addExpression(scope, *assignment.rhs);
@@ -121,12 +113,19 @@ static void finalizeExpression(ScopeStack &scope, Expression &expr) {
 	std::visit(overloaded {
 		[&](StringLiteralExpr &) {},
 		[&](NumberLiteralExpr &) {},
-		[&](IdentifierExpr &ident) { ident.ident.id = scope.find(ident.ident.name); },
+		[&](IdentifierExpr &ident) {
+			ident.ident.id = scope.find(ident.ident.name);
+		},
 		[&](BinaryExpr &bin) {
 			finalizeExpression(scope, *bin.lhs);
 			finalizeExpression(scope, *bin.rhs);
 		},
-		[&](FuncCallExpr &call) { addExpression(scope, *call.func); },
+		[&](FuncCallExpr &call) {
+			finalizeExpression(scope, *call.func);
+			for (std::unique_ptr<Expression> &arg: call.args) {
+				finalizeExpression(scope, *arg);
+			}
+		},
 		[&](AssignmentExpr &assignment) {
 			finalizeExpression(scope, *assignment.lhs);
 			finalizeExpression(scope, *assignment.rhs);
@@ -203,6 +202,20 @@ static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 
 			finalizeCodeBlock(scope, *methodDecl.body);
 			scope.popScope();
+		},
+	}, decl);
+}
+
+static void addDeclaration(ScopeStack &scope, Declaration &decl) {
+	std::visit(overloaded {
+		[&](ClassDecl &classDecl) {
+			classDecl.ident.id = scope.define(classDecl.ident.name);
+		},
+		[&](FuncDecl &funcDecl) {
+			funcDecl.ident.id = scope.define(funcDecl.ident.name);
+		},
+		[&](MethodDecl &methodDecl) {
+			methodDecl.ident.id = scope.define(methodDecl.ident.name);
 		},
 	}, decl);
 }
