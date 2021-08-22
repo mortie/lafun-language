@@ -29,6 +29,7 @@ static std::ostream &operator<<(std::ostream &os, const Identifier &ident) {
 }
 
 void printExpression(std::ostream &os, const Expression &expr, int depth) {
+	os << '(';
 	std::visit(overloaded {
 		[&](const StringLiteralExpr &str) { os << '"' << str.str << '"'; },
 		[&](const NumberLiteralExpr &num) { os << num.num; },
@@ -47,7 +48,6 @@ void printExpression(std::ostream &os, const Expression &expr, int depth) {
 		},
 		[&](const FuncCallExpr &call) {
 			printExpression(os, *call.func, 0);
-			os << '(';
 
 			bool first = true;
 			for (const std::unique_ptr<Expression> &arg: call.args) {
@@ -72,6 +72,7 @@ void printExpression(std::ostream &os, const Expression &expr, int depth) {
 			printExpression(os, *assignment.rhs, depth);
 		},
 	}, expr);
+	os << ')';
 }
 
 static void printIfStatm(std::ostream &os, const IfStatm &statm, int depth) {

@@ -77,8 +77,16 @@ static void parseExpression(Lexer &lexer, Expression &expr) {
 		Token tok = lexer.consume();
 		Identifier ident{std::move(tok.getStr()), tok.range};
 		expr = IdentifierExpr{ident};
+	} else if (kind == TokKind::OPEN_PAREN) {
+		Token tok = lexer.consume();
+		parseExpression(lexer, expr);
+		expect(lexer, TokKind::CLOSE_PAREN);
+		lexer.consume();
 	} else {
-		fail(lexer.peek(0), TokKind::IDENT);
+		fail(lexer.peek(0), {
+			TokKind::STRING, TokKind::NUMBER, TokKind::IDENT,
+			TokKind::OPEN_PAREN
+		});
 	}
 
 	while (true) {

@@ -23,6 +23,7 @@ struct BinaryExpr;
 struct FuncCallExpr;
 struct AssignmentExpr;
 struct DeclAssignmentExpr;
+struct GroupExpr;
 using Expression = std::variant<
 	StringLiteralExpr,
 	NumberLiteralExpr,
