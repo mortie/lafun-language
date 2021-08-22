@@ -23,11 +23,10 @@ public:
 	void finalize();
 	size_t nextId() { return id_++; }
 
-	size_t tryFind(const std::string &name);
+	void resolveCodeBlock(ast::CodeBlock &block);
 
 private:
-	std::unordered_map<std::string, size_t> ids_;
-	std::unordered_map<std::string, ast::Declaration *> decls_;
+	std::vector<ast::Declaration *> decls_;
 	size_t id_ = 1;
 };
 

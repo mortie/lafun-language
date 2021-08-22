@@ -72,49 +72,27 @@ size_t ScopeStack::tryFind(const std::string &name) {
 		}
 	}
 
-	return resolver_.tryFind(name);
+	return 0;
 }
 
 void IdentResolver::add(Declaration *decl) {
-	std::visit(overloaded {
-		[&](ClassDecl &classDecl) {
-			if (decls_.find(classDecl.ident.name) != decls_.end()) {
-				throw NameError("Duplicate definition of " + classDecl.ident.name);
-			}
-
-			classDecl.ident.id = nextId();
-			ids_[classDecl.ident.name] = classDecl.ident.id;
-			decls_[classDecl.ident.name] = decl;
-		},
-		[&](FuncDecl &funcDecl) {
-			if (decls_.find(funcDecl.ident.name) != decls_.end()) {
-				throw NameError("Duplicate definition of " + funcDecl.ident.name);
-			}
-
-			funcDecl.ident.id = nextId();
-			ids_[funcDecl.ident.name] = funcDecl.ident.id;
-			decls_[funcDecl.ident.name] = decl;
-		},
-		[&](MethodDecl &methodDecl) {
-			std::string name = methodDecl.classIdent.name + "::" + methodDecl.ident.name;
-			if (decls_.find(name) != decls_.end()) {
-				throw NameError("Duplicate definition of " + name);
-			}
-
-			methodDecl.ident.id = nextId();
-			ids_[name] = methodDecl.ident.id;
-			decls_[name] = decl;
-		},
-	}, *decl);
+	decls_.push_back(decl);
 }
 
 static void finalizeCodeBlock(ScopeStack &scope, CodeBlock &block);
+static void finalizeDeclaration(ScopeStack &scope, Declaration &decl);
 
 static void addDeclaration(ScopeStack &scope, Declaration &decl) {
 	std::visit(overloaded {
-		[&](ClassDecl &classDecl) { scope.define(classDecl.ident.name); },
-		[&](FuncDecl &funcDecl) { scope.define(funcDecl.ident.name); },
-		[&](MethodDecl &methodDecl) { scope.define(methodDecl.ident.name); },
+		[&](ClassDecl &classDecl) {
+			classDecl.ident.id = scope.define(classDecl.ident.name);
+		},
+		[&](FuncDecl &funcDecl) {
+			funcDecl.ident.id = scope.define(funcDecl.ident.name);
+		},
+		[&](MethodDecl &methodDecl) {
+			methodDecl.ident.id = scope.define(methodDecl.ident.name);
+		},
 	}, decl);
 }
 
@@ -183,7 +161,7 @@ static void finalizeStatement(ScopeStack &scope, Statement &statm) {
 
 			scope.popScope();
 		},
-		[&](Declaration &decl) { addDeclaration(scope, decl); }
+		[&](Declaration &decl) { finalizeDeclaration(scope, decl); }
 	}, statm);
 }
 
@@ -216,8 +194,7 @@ static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 			scope.popScope();
 		},
 		[&](MethodDecl &methodDecl) {
-			size_t classId = scope.find(methodDecl.classIdent.name);
-			methodDecl.classIdent.id = classId;
+			methodDecl.classIdent.id = scope.find(methodDecl.classIdent.name);
 
 			scope.pushScope();
 			for (Identifier &arg: methodDecl.args) {
@@ -231,19 +208,23 @@ static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 }
 
 void IdentResolver::finalize() {
-	ScopeStack stack(*this);
-	for (auto &[_, decl]: decls_) {
-		finalizeDeclaration(stack, *decl);
+	ScopeStack scope(*this);
+	scope.pushScope();
+
+	for (auto decl: decls_) {
+		addDeclaration(scope, *decl);
 	}
+
+	for (auto decl: decls_) {
+		finalizeDeclaration(scope, *decl);
+	}
+
+	scope.popScope();
 }
 
-size_t IdentResolver::tryFind(const std::string &name) {
-	auto it = ids_.find(name);
-	if (it == ids_.end()) {
-		return 0;
-	}
-
-	return it->second;
+void IdentResolver::resolveCodeBlock(CodeBlock &block) {
+	ScopeStack scope(*this);
+	finalizeCodeBlock(scope, block);
 }
 
 }
