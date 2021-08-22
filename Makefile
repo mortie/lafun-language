@@ -5,6 +5,7 @@ LIBSRCS := \
 	src/fun/IdentResolver.cc \
 	src/fun/Lexer.cc \
 	src/fun/parse.cc \
+	src/fun/prelude.cc \
 	src/fun/print.cc \
 	src/lafun/parse.cc \
 	src/lafun/print.cc \

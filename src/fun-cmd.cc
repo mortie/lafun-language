@@ -3,6 +3,7 @@
 #include "fun/print.h"
 #include "fun/IdentResolver.h"
 #include "fun/Codegen.h"
+#include "fun/prelude.h"
 
 #include <fstream>
 #include <iostream>
@@ -20,6 +21,7 @@ int main(int argc, char **argv) {
 	stream.open(argv[1]);
 
 	std::stringstream ss;
+	ss << funPrelude;
 	ss << stream.rdbuf();
 	std::string str = ss.str();
 
@@ -39,6 +41,7 @@ int main(int argc, char **argv) {
 	printCodeBlock(std::cout, block);
 
 	std::cout << "\n == Codegen:\n";
+	std::cout << jsPrelude;
 	Codegen codegen;
 	for (const auto &statm : block.statms) {
 		codegen.add(&statm);
