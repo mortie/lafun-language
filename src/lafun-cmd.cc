@@ -1,6 +1,11 @@
+#include "fun/IdentResolver.h"
+#include "fun/prelude.h"
+
+#include "lafun/ast.h"
 #include "lafun/parse.h"
 #include "lafun/print.h"
 #include "lafun/codegen.h"
+#include "lafun/resolve.h"
 
 #include <fstream>
 #include <iostream>
@@ -29,6 +34,27 @@ int main(int argc, char **argv) {
 	Reader reader(str);
 	ast::LafunDocument document;
 	parseLafun(reader, document);
+
+	// Resolve FuN definitions / references
+	fun::IdentResolver resolver;
+	for (const std::string &name: fun::preludeNames) {
+		resolver.addBuiltin(name);
+	}
+
+	for (auto &block: document.blocks) {
+		if (std::holds_alternative<lafun::ast::FunBlock>(block)) {
+			resolver.add(&std::get<lafun::ast::FunBlock>(block).decl);
+		}
+	}
+
+	resolver.finalize();
+
+	document.defs = resolver.getDefs();
+	document.refs = resolver.getRefs();
+
+	// Resolve LaFuN definitions / references
+	resolveLafunReferences(document);
+
 	printLafunDocument(std::cout, document);
 
 	std::cout << "\n == Defs:\n";

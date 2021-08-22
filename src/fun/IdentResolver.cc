@@ -1,6 +1,7 @@
 #include "IdentResolver.h"
 
 #include <vector>
+#include <algorithm>
 
 #include "util.h"
 
@@ -261,6 +262,9 @@ void IdentResolver::finalize() {
 	for (auto decl: decls_) {
 		finalizeDeclaration(scope_, *decl);
 	}
+
+	std::sort(defs_.begin(), defs_.end(), [](const Identifier *lhs, const Identifier *rhs) { return lhs->range.start < rhs->range.start; });
+	std::sort(refs_.begin(), refs_.end(), [](const Identifier *lhs, const Identifier *rhs) { return lhs->range.start < rhs->range.start; });
 
 	scope_.popScope();
 }
