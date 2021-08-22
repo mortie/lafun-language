@@ -273,6 +273,7 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 			args.push_back({std::move(tok.getStr()), tok.range});
 
 			if (lexer.peek(0).kind == TokKind::COMMA) {
+				lexer.consume(); // ','
 				continue;
 			} else if (lexer.peek(0).kind == TokKind::CLOSE_BRACE) {
 				break;
@@ -329,6 +330,7 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 			args.push_back({std::move(tok.getStr()), tok.range});
 
 			if (lexer.peek(0).kind == TokKind::COMMA) {
+				lexer.consume(); // ','
 				continue;
 			} else if (lexer.peek(0).kind == TokKind::CLOSE_BRACE) {
 				break;
