@@ -298,10 +298,10 @@ Token Lexer::readTok() {
 		return makeTok(TokKind::PLUS);
 	} else if (ch == '-' && ch2 == '=') {
 		readCh(); readCh();
-		return makeTok(TokKind::PLUSEQ);
+		return makeTok(TokKind::MINUSEQ);
 	} else if (ch == '-') {
 		readCh();
-		return makeTok(TokKind::PLUS);
+		return makeTok(TokKind::MINUS);
 	} else if (ch == '*' && ch2 == '=') {
 		readCh(); readCh();
 		return makeTok(TokKind::MULTEQ);
