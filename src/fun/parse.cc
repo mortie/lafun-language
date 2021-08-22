@@ -46,11 +46,15 @@ static void parseArgumentList(Lexer &lexer, std::vector<std::unique_ptr<Expressi
 	lexer.consume(); // '('
 
 	while (true) {
+		if (lexer.peek(0).kind == TokKind::CLOSE_PAREN) {
+			break;
+		}
+
 		std::unique_ptr<Expression> param = std::make_unique<Expression>();
 		parseExpression(lexer, *param);
 		args.push_back(std::move(param));
 
-		Token tok = lexer.peek(0);
+		Token &tok = lexer.peek(0);
 		if (tok.kind == TokKind::COMMA) {
 			lexer.consume(); // ','
 		} else if (tok.kind == TokKind::CLOSE_PAREN) {
@@ -265,6 +269,10 @@ void parseDeclaration(Lexer &lexer, Declaration &decl) {
 		// <args>
 		std::vector<Identifier> args;
 		while (true) {
+			if (lexer.peek(0).kind == TokKind::CLOSE_BRACE) {
+				break;
+			}
+
 			expect(lexer, TokKind::IDENT);
 			args.push_back({std::move(lexer.consume().getStr()), {}});
 
