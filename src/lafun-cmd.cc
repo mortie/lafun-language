@@ -1,5 +1,6 @@
 #include "lafun/parse.h"
 #include "lafun/print.h"
+#include "fun/IdentResolver.h"
 
 #include <fstream>
 #include <iostream>
@@ -27,7 +28,8 @@ int main(int argc, char **argv) {
 	std::cout << "\n == Document:\n";
 	Reader reader(str);
 	ast::LafunDocument document;
-	parseLafun(reader, document);
+	fun::IdentResolver resolver;
+	parseLafun(reader, document, resolver);
 	printLafunDocument(std::cout, document);
 
 	std::cout << "\n == Defs:\n";

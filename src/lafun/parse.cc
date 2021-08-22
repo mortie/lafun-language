@@ -1,7 +1,6 @@
 #include "parse.h"
 
 #include "fun/parse.h"
-#include "fun/IdentResolver.h"
 
 using namespace lafun::ast;
 
@@ -57,7 +56,7 @@ static size_t findDownwards(LafunDocument &doc, size_t idx, const std::string &n
 	return 0;
 }
 
-void parseLafun(Reader &reader, LafunDocument &document) {
+void parseLafun(Reader &reader, LafunDocument &document, fun::IdentResolver &resolver) {
 	std::string currentBlock;
 	while (true) {
 		int ch = reader.peekCh(0);
@@ -155,7 +154,6 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 		}
 	}
 
-	fun::IdentResolver resolver;
 	for (LafunBlock &block: document.blocks) {
 		if (std::holds_alternative<FunBlock>(block)) {
 			resolver.add(&std::get<FunBlock>(block).decl);

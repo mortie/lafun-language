@@ -3,6 +3,7 @@
 #include <string>
 
 #include "fun/Lexer.h"
+#include "fun/IdentResolver.h"
 #include "ast.h"
 
 namespace lafun {
@@ -17,6 +18,6 @@ struct LafunParseError: public std::exception {
 	const char *what() const noexcept override { return message.c_str(); }
 };
 
-void parseLafun(Reader &reader, ast::LafunDocument &document);
+void parseLafun(Reader &reader, ast::LafunDocument &document, fun::IdentResolver &resolver);
 
 }
