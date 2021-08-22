@@ -58,6 +58,10 @@ When compiling to LaTeX then to PDF, we can see just how beautiful our code has 
 
 ![Sample LaFuN output](/images/readme-sample-latex-output.png)
 
+Notice the hyperlinks between every reference and its corresponding definition!
+This makes the generated PDF a great way to browse code written in LaFuN.
+Browse the `examples` folder for some pre-generated PDFs if you'd like to play with these links.
+
 Running it is also simple!
 
 ```
