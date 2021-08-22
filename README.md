@@ -99,8 +99,8 @@ and the inner language, called FuN. The LaFuN parser handles all the LaTeX
 parsing and detects `\fun` and `\class` definitions, and hands them over to the
 FuN parser.
 
-The FuN language is a dynamic language. The implementation contained in this
-repo has a code generator which generates JavaScript code.
+The FuN parser is a hand-written recursive descent parser, with a hand-written
+lexical analyzer. The back-end is a code generator which generates JavaScript.
 
 FuN has functions:
 
@@ -184,4 +184,3 @@ Here's an example program using our vector:
 	print(vec.toString());
 }
 ```
-
