@@ -18,7 +18,7 @@ void codegen(std::ostream &os, std::string_view source, const ast::LafunDocument
 	for (const auto &block : doc.blocks) {
 		std::visit(overloaded {
 			[&](const ast::FunBlock &block2) {
-				os << "{\\parindent0pt\n";
+				os << "~\\\\\n{\\parindent0pt\n";
 				size_t curByte = block2.range.start;
 				while (curByte < block2.range.end) {
 					// Determine if the next identifier is a def or a ref
