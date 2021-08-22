@@ -85,7 +85,7 @@ private:
 	void generateClassStart(std::ostream &os, const ast::ClassDecl *clas);
 	void generateParameters(std::ostream &os, const std::vector<ast::Identifier> &args);
 	void generateClassMethods(std::ostream &os, const ast::MethodDecl *method);
-	void generateClassEnd(std::ostream &os);
+	void generateClassEnd(std::ostream &os, const ast::ClassDecl *clas);
 
 	void generateStringLiteral(std::ostream &os, const std::string &str);
 

@@ -199,6 +199,7 @@ static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 	std::visit(overloaded {
 		[&](ClassDecl &classDecl) {
 			scope.pushScope();
+			scope.define("self");
 			for (Identifier &arg: classDecl.args) {
 				scope.addDef(arg);
 			}
@@ -219,6 +220,7 @@ static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 			scope.addRef(methodDecl.classIdent);
 
 			scope.pushScope();
+			scope.define("self");
 			for (Identifier &arg: methodDecl.args) {
 				scope.addDef(arg);
 			}

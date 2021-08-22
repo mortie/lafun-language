@@ -198,14 +198,15 @@ void Codegen::generateClass(std::ostream &os, const ClassAndMethods &clas) {
 	for (const auto &[_, method] : clas.second) {
 		generateClassMethods(os, method);
 	}
-	generateClassEnd(os);
+	generateClassEnd(os, clas.first);
 }
 
 void Codegen::generateClassStart(std::ostream &os, const ast::ClassDecl *clas) {
-	os << "class FUN_" << clas->ident.name << " {\n";
+	os << "class FUNclass_" << clas->ident.name << " {\n";
 	os << "constructor (";
 	generateParameters(os, clas->args);
 	os << ") {\n";
+	os << "let FUN_self = this;\n";
 	generateCodeBlock(os, clas->body.get());
 	os << "}\n";
 }
@@ -223,12 +224,20 @@ void Codegen::generateClassMethods(std::ostream &os, const ast::MethodDecl *meth
 	os << method->ident.name << "(";
 	generateParameters(os, method->args);
 	os << ") {\n";
+	os << "let FUN_self = this;\n";
 	generateCodeBlock(os, method->body.get());
 	os << "}\n";
 }
 
-void Codegen::generateClassEnd(std::ostream &os) {
+void Codegen::generateClassEnd(std::ostream &os, const ast::ClassDecl *clas) {
 	os << "}\n";
+
+	os << "function FUN_" << clas->ident.name << "(";
+	generateParameters(os, clas->args);
+	os << ") {\n";
+	os << "return new FUNclass_" << clas->ident.name << "(";
+	generateParameters(os, clas->args);
+	os << ");\n}\n";
 };
 
 void Codegen::generateStringLiteral(std::ostream &os, const std::string &str) {
