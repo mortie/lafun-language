@@ -21,7 +21,7 @@ static void printExpression(std::ostream &os, const Expression &expr, int depth)
 	std::visit(overloaded {
 		[&](const StringLiteralExpr &str) { os << '"' << str.str << '"'; },
 		[&](const NumberLiteralExpr &num) { os << num.num; },
-		[&](const IdentifierExpr &ident) { os << ident.ident; },
+		[&](const IdentifierExpr &ident) { os << ident.ident.name; },
 		[&](const BinaryExpr &bin) {
 			printExpression(os, *bin.lhs, depth);
 
@@ -56,7 +56,7 @@ static void printExpression(std::ostream &os, const Expression &expr, int depth)
 			printExpression(os, *assignment.rhs, depth);
 		},
 		[&](const DeclAssignmentExpr &assignment) {
-			printExpression(os, *assignment.lhs, depth);
+			os << assignment.ident.name;
 			os << " := ";
 			printExpression(os, *assignment.rhs, depth);
 		},
@@ -83,21 +83,21 @@ static void printIfStatm(std::ostream &os, const IfStatm &statm, int depth) {
 void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 	std::visit(overloaded {
 		[&](const ClassDecl &classDecl) {
-			os << "\\class{" << classDecl.name << "}{\n";
+			os << "\\class{" << classDecl.ident.name << "}{\n";
 			printCodeBlock(os, *classDecl.body, depth + 1);
 			indent(os, depth);
 			os << '}';
 		},
 		[&](const FuncDecl &funcDecl) {
-			os << "\\fun{" << funcDecl.name << "}{";
+			os << "\\fun{" << funcDecl.ident.name << "}{";
 
 			bool first = true;
-			for (const std::string &arg: funcDecl.args) {
+			for (const Identifier &arg: funcDecl.args) {
 				if (!first) {
 					os << ", ";
 				}
 
-				os << arg;
+				os << arg.name;
 				first = false;
 			}
 
@@ -107,15 +107,15 @@ void printDeclaration(std::ostream &os, const Declaration &decl, int depth) {
 			os << '}';
 		},
 		[&](const MethodDecl &methodDecl) {
-			os << "\\fun{" << methodDecl.className << "::" << methodDecl.name << "}{";
+			os << "\\fun{" << methodDecl.classIdent.name << "::" << methodDecl.ident.name << "}{";
 
 			bool first = true;
-			for (const std::string &arg: methodDecl.args) {
+			for (const Identifier &arg: methodDecl.args) {
 				if (!first) {
 					os << ", ";
 				}
 
-				os << arg;
+				os << arg.name;
 				first = false;
 			}
 

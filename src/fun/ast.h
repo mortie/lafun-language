@@ -4,8 +4,14 @@
 #include <vector>
 #include <memory>
 #include <variant>
+#include <cstddef>
 
 namespace fun::ast {
+
+struct Identifier {
+	std::string name;
+	size_t id = 0;
+};
 
 struct StringLiteralExpr;
 struct NumberLiteralExpr;
@@ -32,7 +38,7 @@ struct NumberLiteralExpr {
 };
 
 struct IdentifierExpr {
-	std::string ident;
+	Identifier ident;
 };
 
 struct BinaryExpr {
@@ -54,7 +60,7 @@ struct AssignmentExpr {
 };
 
 struct DeclAssignmentExpr {
-	std::unique_ptr<Expression> lhs;
+	Identifier ident;
 	std::unique_ptr<Expression> rhs;
 };
 
@@ -77,20 +83,20 @@ struct IfStatm {
 };
 
 struct ClassDecl {
-	std::string name;
+	Identifier ident;
 	std::unique_ptr<CodeBlock> body;
 };
 
 struct FuncDecl {
-	std::string name;
-	std::vector<std::string> args;
+	Identifier ident;
+	std::vector<Identifier> args;
 	std::unique_ptr<CodeBlock> body;
 };
 
 struct MethodDecl {
-	std::string className;
-	std::string name;
-	std::vector<std::string> args;
+	Identifier classIdent;
+	Identifier ident;
+	std::vector<Identifier> args;
 	std::unique_ptr<CodeBlock> body;
 };
 
