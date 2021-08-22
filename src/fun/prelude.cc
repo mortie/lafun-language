@@ -32,11 +32,15 @@ function FUN_Array() {
 function FUN_print() {
 	console.log.apply(console, arguments);
 }
+
+let FUN_true = true;
+let FUN_false = false;
+let FUN_none = null;
 /* </Prelude> */
 )javascript";
 
 const std::vector<std::string> preludeNames = {
-	"Array", "print",
+	"Array", "print", "true", "false", "none",
 };
 
 }
