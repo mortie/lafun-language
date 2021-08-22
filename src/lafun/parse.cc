@@ -20,6 +20,16 @@ static size_t findUpwards(LafunDocument &doc, size_t idx, const std::string &nam
 		}
 	}
 
+	for (size_t i = idx + 1; i < doc.size(); ++i) {
+		LafunBlock &block = doc[i];
+		if (std::holds_alternative<fun::ast::Declaration>(block)) {
+			size_t id = fun::resolveDownwardsInDecl(std::get<fun::ast::Declaration>(block), name);
+			if (id != 0) {
+				return id;
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -28,6 +38,16 @@ static size_t findDownwards(LafunDocument &doc, size_t idx, const std::string &n
 		LafunBlock &block = doc[i];
 		if (std::holds_alternative<fun::ast::Declaration>(block)) {
 			size_t id = fun::resolveDownwardsInDecl(std::get<fun::ast::Declaration>(block), name);
+			if (id != 0) {
+				return id;
+			}
+		}
+	}
+
+	for (ssize_t i = idx - 1; i >= 0; --i) {
+		LafunBlock &block = doc[i];
+		if (std::holds_alternative<fun::ast::Declaration>(block)) {
+			size_t id = fun::resolveUpwardsInDecl(std::get<fun::ast::Declaration>(block), name);
 			if (id != 0) {
 				return id;
 			}
