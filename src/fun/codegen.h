@@ -81,8 +81,26 @@ private:
 		os << ";\n";
 	}
 
-	void generateStatement(std::ostream &os, const ast::IfStatm *) {
-		os << "if statement\n";
+	void generateStatement(std::ostream &os, const ast::IfStatm *statm) {
+		// Temporarily swap out the list of names declared in this scope
+		std::unordered_set<std::string> outerDeclaredNames(std::move(alreadyDeclared));
+
+		os << "{\n";
+		auto name = generateExpression(os, &statm->condition);
+		os << "if (";
+		generateExpressionName(os, name);
+		os << ") {\n";
+		generateCodeBlock(os, statm->ifBody.get());
+		os << "}\n";
+		if (statm->elseBody) {
+			os << "else {\n";
+			generateCodeBlock(os, statm->elseBody.get());
+			os << "}\n";
+		}
+		os << "}\n";
+
+		// Move them back
+		alreadyDeclared = std::move(outerDeclaredNames);
 	}
 
 	size_t counter = 0;
