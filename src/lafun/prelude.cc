@@ -2,8 +2,7 @@
 
 namespace lafun {
 
-std::string latexPrelude = R"latex(
-\documentclass{article}
+std::string latexPrelude = R"latex(\documentclass{article}
 
 % Useful packages
 \usepackage{amsmath}
