@@ -106,6 +106,12 @@ Codegen::ExpressionName Codegen::generateExpression(std::ostream &os, const ast:
 			os << "const temp" << temp << " = ";
 			generateExpressionName(os, lhsName);
 			switch (expr2.op) {
+				case ast::BinaryExpr::EQ: os << " == "; break;
+				case ast::BinaryExpr::NEQ: os << " != "; break;
+				case ast::BinaryExpr::GT: os << " > "; break;
+				case ast::BinaryExpr::GTEQ: os << " >= "; break;
+				case ast::BinaryExpr::LT: os << " < "; break;
+				case ast::BinaryExpr::LTEQ: os << " <= "; break;
 				case ast::BinaryExpr::ADD: os << " + "; break;
 				case ast::BinaryExpr::SUB: os << " - "; break;
 				case ast::BinaryExpr::MULT: os << " * "; break;

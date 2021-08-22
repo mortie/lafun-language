@@ -73,9 +73,14 @@ std::string Token::kindToString(TokKind kind) {
 	case TokKind::SEMICOLON: return "SEMICOLON";
 	case TokKind::COMMA: return "COMMA";
 	case TokKind::DOT: return "DOT";
-	case TokKind::EQ: return "EQ";
 	case TokKind::EQEQ: return "EQEQ";
+	case TokKind::NOTEQ: return "NOTEQ";
+	case TokKind::GT: return "GT";
+	case TokKind::GTEQ: return "GTEQ";
+	case TokKind::LT: return "LT";
+	case TokKind::LTEQ: return "LTEQ";
 	case TokKind::COLONEQ: return "COLONEQ";
+	case TokKind::EQ: return "EQ";
 	case TokKind::PLUS: return "PLUS";
 	case TokKind::PLUSEQ: return "PLUSEQ";
 	case TokKind::MINUS: return "MINUS";
@@ -264,6 +269,21 @@ Token Lexer::readTok() {
 	if (ch == '=' && ch2 == '=') {
 		readCh(); readCh();
 		return makeTok(TokKind::EQEQ);
+	} else if (ch == '!' && ch2 == '=') {
+		readCh(); readCh();
+		return makeTok(TokKind::NOTEQ);
+	} else if (ch == '>' && ch2 == '=') {
+		readCh(); readCh();
+		return makeTok(TokKind::GTEQ);
+	} else if (ch == '>') {
+		readCh();
+		return makeTok(TokKind::GT);
+	} else if (ch == '<' && ch2 == '=') {
+		readCh(); readCh();
+		return makeTok(TokKind::LTEQ);
+	} else if (ch == '<') {
+		readCh();
+		return makeTok(TokKind::LT);
 	} else if (ch == ':' && ch2 == '=') {
 		readCh(); readCh();
 		return makeTok(TokKind::COLONEQ);

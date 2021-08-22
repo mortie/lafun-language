@@ -47,7 +47,7 @@ struct IdentifierExpr {
 };
 
 struct BinaryExpr {
-	enum Oper {ADD, SUB, MULT, DIV};
+	enum Oper {ADD, SUB, MULT, DIV, EQ, NEQ, GT, GTEQ, LT, LTEQ};
 
 	Oper op;
 	std::unique_ptr<Expression> lhs;

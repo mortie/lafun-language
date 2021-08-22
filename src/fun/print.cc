@@ -38,6 +38,12 @@ void printExpression(std::ostream &os, const Expression &expr, int depth) {
 			printExpression(os, *bin.lhs, depth);
 
 			switch (bin.op) {
+			case BinaryExpr::EQ: os << " == "; break;
+			case BinaryExpr::NEQ: os << " != "; break;
+			case BinaryExpr::GT: os << " > "; break;
+			case BinaryExpr::GTEQ: os << " >= "; break;
+			case BinaryExpr::LT: os << " < "; break;
+			case BinaryExpr::LTEQ: os << " <= "; break;
 			case BinaryExpr::ADD: os << " + "; break;
 			case BinaryExpr::SUB: os << " - "; break;
 			case BinaryExpr::MULT: os << " * "; break;

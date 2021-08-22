@@ -93,6 +93,9 @@ static void parseExpression(Lexer &lexer, Expression &expr) {
 	while (true) {
 		kind = lexer.peek(0).kind;
 		if (
+				kind == TokKind::EQEQ || kind == TokKind::NOTEQ ||
+				kind == TokKind::GT || kind == TokKind::GTEQ ||
+				kind == TokKind::LT || kind == TokKind::LTEQ ||
 				kind == TokKind::PLUS || kind == TokKind::MINUS ||
 				kind == TokKind::MULT || kind == TokKind::DIV) {
 			lexer.consume(); // operator
@@ -102,7 +105,19 @@ static void parseExpression(Lexer &lexer, Expression &expr) {
 			bin.rhs = std::make_unique<Expression>();
 			parseExpression(lexer, *bin.rhs);
 
-			if (kind == TokKind::PLUS) {
+			if (kind == TokKind::EQEQ) {
+				bin.op = BinaryExpr::EQ;
+			} else if (kind == TokKind::NOTEQ) {
+				bin.op = BinaryExpr::NEQ;
+			} else if (kind == TokKind::GT) {
+				bin.op = BinaryExpr::GT;
+			} else if (kind == TokKind::GTEQ) {
+				bin.op = BinaryExpr::GTEQ;
+			} else if (kind == TokKind::LT) {
+				bin.op = BinaryExpr::LT;
+			} else if (kind == TokKind::LTEQ) {
+				bin.op = BinaryExpr::LTEQ;
+			} else if (kind == TokKind::PLUS) {
 				bin.op = BinaryExpr::ADD;
 			} else if (kind == TokKind::MINUS) {
 				bin.op = BinaryExpr::SUB;
