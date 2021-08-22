@@ -11,19 +11,19 @@ namespace lafun {
 
 static size_t findUpwards(LafunDocument &doc, size_t idx, const std::string &name) {
 	for (ssize_t i = idx - 1; i >= 0; --i) {
-		LafunBlock &block = doc[i];
-		if (std::holds_alternative<fun::ast::Declaration>(block)) {
-			size_t id = fun::resolveUpwardsInDecl(std::get<fun::ast::Declaration>(block), name);
+		LafunBlock &block = doc.blocks[i];
+		if (std::holds_alternative<FunBlock>(block)) {
+			size_t id = fun::resolveUpwardsInDecl(std::get<FunBlock>(block).decl, name);
 			if (id != 0) {
 				return id;
 			}
 		}
 	}
 
-	for (size_t i = idx + 1; i < doc.size(); ++i) {
-		LafunBlock &block = doc[i];
-		if (std::holds_alternative<fun::ast::Declaration>(block)) {
-			size_t id = fun::resolveDownwardsInDecl(std::get<fun::ast::Declaration>(block), name);
+	for (size_t i = idx + 1; i < doc.blocks.size(); ++i) {
+		LafunBlock &block = doc.blocks[i];
+		if (std::holds_alternative<FunBlock>(block)) {
+			size_t id = fun::resolveDownwardsInDecl(std::get<FunBlock>(block).decl, name);
 			if (id != 0) {
 				return id;
 			}
@@ -34,10 +34,10 @@ static size_t findUpwards(LafunDocument &doc, size_t idx, const std::string &nam
 }
 
 static size_t findDownwards(LafunDocument &doc, size_t idx, const std::string &name) {
-	for (size_t i = idx + 1; i < doc.size(); ++i) {
-		LafunBlock &block = doc[i];
-		if (std::holds_alternative<fun::ast::Declaration>(block)) {
-			size_t id = fun::resolveDownwardsInDecl(std::get<fun::ast::Declaration>(block), name);
+	for (size_t i = idx + 1; i < doc.blocks.size(); ++i) {
+		LafunBlock &block = doc.blocks[i];
+		if (std::holds_alternative<FunBlock>(block)) {
+			size_t id = fun::resolveDownwardsInDecl(std::get<FunBlock>(block).decl, name);
 			if (id != 0) {
 				return id;
 			}
@@ -45,9 +45,9 @@ static size_t findDownwards(LafunDocument &doc, size_t idx, const std::string &n
 	}
 
 	for (ssize_t i = idx - 1; i >= 0; --i) {
-		LafunBlock &block = doc[i];
-		if (std::holds_alternative<fun::ast::Declaration>(block)) {
-			size_t id = fun::resolveUpwardsInDecl(std::get<fun::ast::Declaration>(block), name);
+		LafunBlock &block = doc.blocks[i];
+		if (std::holds_alternative<FunBlock>(block)) {
+			size_t id = fun::resolveUpwardsInDecl(std::get<FunBlock>(block).decl, name);
 			if (id != 0) {
 				return id;
 			}
@@ -84,15 +84,17 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 				reader.peekCh(i) == '{') {
 
 				if (!currentBlock.empty()) {
-					document.push_back(RawLatex{std::move(currentBlock)});
+					document.blocks.emplace_back(RawLatex{std::move(currentBlock)});
 					currentBlock = "";
 				}
 
+				size_t startIdx = reader.idx;
 				fun::Lexer lexer(reader);
 				fun::ast::Declaration decl;
 				parseDeclaration(lexer, decl);
 				reader = lexer.reader_;
-				document.push_back(std::move(decl));
+				size_t endIdx = reader.idx;
+				document.blocks.emplace_back(FunBlock{std::move(decl), fun::ByteRange{startIdx, endIdx}});
 			} else {
 				// skip it
 				for (size_t j = 0; j < i; j++) {
@@ -101,7 +103,7 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 			}
 		} else if (ch == '@' || ch == '!') {
 			if (!currentBlock.empty()) {
-				document.push_back(RawLatex{std::move(currentBlock)});
+				document.blocks.emplace_back(RawLatex{std::move(currentBlock)});
 			}
 
 			reader.readCh();
@@ -123,10 +125,10 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 
 			if (ch == '@') {
 				// Upwards ref
-				document.push_back(IdentifierUpwardsRef{std::move(ident)});
+				document.blocks.emplace_back(IdentifierUpwardsRef{std::move(ident)});
 			} else {
 				// Downwards ref
-				document.push_back(IdentifierDownwardsRef{std::move(ident)});
+				document.blocks.emplace_back(IdentifierDownwardsRef{std::move(ident)});
 			}
 		} else if (ch == '{') {
 			// Read till next *matching* }
@@ -145,7 +147,7 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 			}
 		} else if (ch == EOF) {
 			if (!currentBlock.empty()) {
-				document.push_back(RawLatex{std::move(currentBlock)});
+				document.blocks.emplace_back(RawLatex{std::move(currentBlock)});
 			}
 			break;
 		} else {
@@ -154,16 +156,19 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 	}
 
 	fun::IdentResolver resolver;
-	for (LafunBlock &block: document) {
-		if (std::holds_alternative<fun::ast::Declaration>(block)) {
-			resolver.add(&std::get<fun::ast::Declaration>(block));
+	for (LafunBlock &block: document.blocks) {
+		if (std::holds_alternative<FunBlock>(block)) {
+			resolver.add(&std::get<FunBlock>(block).decl);
 		}
 	}
 
 	resolver.finalize();
 
-	for (size_t i = 0; i < document.size(); ++i) {
-		LafunBlock &block = document[i];
+	document.defs = resolver.getDefs();
+	document.refs = resolver.getRefs();
+
+	for (size_t i = 0; i < document.blocks.size(); ++i) {
+		LafunBlock &block = document.blocks[i];
 		if (std::holds_alternative<IdentifierUpwardsRef>(block)) {
 			IdentifierUpwardsRef &ref = std::get<IdentifierUpwardsRef>(block);
 			ref.id = findUpwards(document, i, ref.ident);

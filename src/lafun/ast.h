@@ -7,6 +7,11 @@
 
 namespace lafun::ast {
 
+struct FunBlock {
+	fun::ast::Declaration decl;
+	fun::ByteRange range;
+};
+
 struct RawLatex {
 	std::string str;
 };
@@ -22,11 +27,15 @@ struct IdentifierDownwardsRef {
 };
 
 using LafunBlock = std::variant<
-	fun::ast::Declaration,
+	FunBlock,
 	RawLatex,
 	IdentifierUpwardsRef,
 	IdentifierDownwardsRef>;
 
-using LafunDocument = std::vector<LafunBlock>;
+struct LafunDocument {
+	std::vector<LafunBlock> blocks;
+	std::vector<const fun::ast::Identifier *> defs;
+	std::vector<const fun::ast::Identifier *> refs;
+};
 
 }

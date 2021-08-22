@@ -30,5 +30,15 @@ int main(int argc, char **argv) {
 	parseLafun(reader, document);
 	printLafunDocument(std::cout, document);
 
+	std::cout << "\n == Defs:\n";
+	for (const auto &def : document.defs) {
+		std::cout << def->name << ":" << def->id << " (" << def->range.start << ":" << def->range.end << ")\n";
+	}
+
+	std::cout << "\n == Refs:\n";
+	for (const auto &ref : document.refs) {
+		std::cout << ref->name << ":" << ref->id << " (" << ref->range.start << ":" << ref->range.end << ")\n";
+	}
+
 	return 0;
 }

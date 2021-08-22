@@ -25,8 +25,16 @@ public:
 
 	void finalizeBlock(ast::CodeBlock &block);
 
+	void addDef(const ast::Identifier *ident) { defs_.push_back(ident); }
+	void addRef(const ast::Identifier *ident) { refs_.push_back(ident); }
+
+	const std::vector<const ast::Identifier *> &getDefs() const { return defs_; }
+	const std::vector<const ast::Identifier *> &getRefs() const { return refs_; }
+
 private:
 	std::vector<ast::Declaration *> decls_;
+	std::vector<const ast::Identifier *> defs_;
+	std::vector<const ast::Identifier *> refs_;
 	size_t id_ = 1;
 };
 

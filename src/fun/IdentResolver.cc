@@ -18,6 +18,10 @@ public:
 	void pushScope();
 	void popScope();
 
+	void addDef(Identifier &ident);
+	void addRedef(Identifier &ident);
+	void addRef(Identifier &ident);
+
 	size_t define(const std::string &name);
 	size_t redefine(const std::string &name);
 	size_t defineTrap(const std::string &name);
@@ -40,6 +44,19 @@ void ScopeStack::pushScope() {
 
 void ScopeStack::popScope() {
 	scopes_.pop_back();
+}
+
+void ScopeStack::addDef(Identifier &ident) {
+	ident.id = define(ident.name);
+	resolver_.addDef(&ident);
+}
+void ScopeStack::addRedef(Identifier &ident) {
+	ident.id = redefine(ident.name);
+	resolver_.addDef(&ident);
+}
+void ScopeStack::addRef(Identifier &ident) {
+	ident.id = find(ident.name);
+	resolver_.addRef(&ident);
 }
 
 size_t ScopeStack::define(const std::string &name) {
@@ -132,7 +149,7 @@ static void finalizeExpression(ScopeStack &scope, Expression &expr) {
 		[&](StringLiteralExpr &) {},
 		[&](NumberLiteralExpr &) {},
 		[&](IdentifierExpr &ident) {
-			ident.ident.id = scope.find(ident.ident.name);
+			scope.addRef(ident.ident);
 		},
 		[&](BinaryExpr &bin) {
 			finalizeExpression(scope, *bin.lhs);
@@ -150,7 +167,7 @@ static void finalizeExpression(ScopeStack &scope, Expression &expr) {
 		},
 		[&](DeclAssignmentExpr &assignment) {
 			finalizeExpression(scope, *assignment.rhs);
-			assignment.ident.id = scope.redefine(assignment.ident.name);
+			scope.addRedef(assignment.ident);
 		},
 		[&](LookupExpr &lookup) {
 			finalizeExpression(scope, *lookup.lhs);
@@ -204,7 +221,7 @@ static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 		[&](ClassDecl &classDecl) {
 			scope.pushScope();
 			for (Identifier &arg: classDecl.args) {
-				arg.id = scope.define(arg.name);
+				scope.addDef(arg);
 			}
 
 			finalizeCodeBlock(scope, *classDecl.body);
@@ -213,18 +230,18 @@ static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 		[&](FuncDecl &funcDecl) {
 			scope.pushScope();
 			for (Identifier &arg: funcDecl.args) {
-				arg.id = scope.define(arg.name);
+				scope.addDef(arg);
 			}
 
 			finalizeCodeBlock(scope, *funcDecl.body);
 			scope.popScope();
 		},
 		[&](MethodDecl &methodDecl) {
-			methodDecl.classIdent.id = scope.find(methodDecl.classIdent.name);
+			scope.addRef(methodDecl.classIdent);
 
 			scope.pushScope();
 			for (Identifier &arg: methodDecl.args) {
-				arg.id = scope.define(arg.name);
+				scope.addDef(arg);
 			}
 
 			finalizeCodeBlock(scope, *methodDecl.body);
@@ -234,17 +251,10 @@ static void finalizeDeclaration(ScopeStack &scope, Declaration &decl) {
 }
 
 static void addDeclaration(ScopeStack &scope, Declaration &decl) {
-	std::visit(overloaded {
-		[&](ClassDecl &classDecl) {
-			classDecl.ident.id = scope.define(classDecl.ident.name);
-		},
-		[&](FuncDecl &funcDecl) {
-			funcDecl.ident.id = scope.define(funcDecl.ident.name);
-		},
-		[&](MethodDecl &methodDecl) {
-			methodDecl.ident.id = scope.define(methodDecl.ident.name);
-		},
-	}, decl);
+	std::visit(
+		[&](auto &decl) {
+			scope.addDef(decl.ident);
+		}, decl);
 }
 
 void IdentResolver::finalize() {
