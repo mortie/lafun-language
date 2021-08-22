@@ -110,8 +110,13 @@ Codegen::ExpressionName Codegen::generateExpression(std::ostream &os, const ast:
 			os << "const temp" << temp << " = ";
 			generateExpressionName(os, funName);
 			os << "(";
+			bool first = true;
 			for (const auto &argName : argNames) {
+				if (!first) {
+					os << ", ";
+				}
 				generateExpressionName(os, argName);
+				first = false;
 			}
 			os << ");\n";
 			return temp;
