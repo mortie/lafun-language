@@ -39,7 +39,8 @@ Let's test it out!
 
 \fun{main}{}{
   vector := Vector2(3, 4);
-  print(SqL2Norm2D(vector));
+  print("vector: x=" + vector.x + ", y=" + vector.y);
+  print("SqL2Norm2D(vector):", SqL2Norm2D(vector));
 }
 
 This program should print $25$ to the console when run.
@@ -71,9 +72,10 @@ To try LaFuN, simply clone this repository and try some of the example commands 
 
 ```
 $ make
-$ ./build/lafun examples/readme.fun -o test.js
+$ ./build/lafun examples/fibonacci.fun -o test.js
 $ node test.js
-25
+vector: x=3, y=4
+SqL2Norm2D(vector): 25
 $ ./build/lafun examples/readme.fun --latex test.tex
 $ # Compile test.tex with your LaTeX compiler of choice (e.g. Overleaf)
 ```

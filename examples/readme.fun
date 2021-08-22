@@ -30,7 +30,8 @@ Let's test it out!
 
 \fun{main}{}{
   vector := Vector2(3, 4);
-  print(SqL2Norm2D(vector));
+  print("vector: x=" + vector.x + ", y=" + vector.y);
+  print("SqL2Norm2D(vector):", SqL2Norm2D(vector));
 }
 
 This program should print $25$ to the console when run.
