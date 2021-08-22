@@ -1,11 +1,11 @@
 OUT ?= build
 
 LIBSRCS := \
+	src/fun/codegen.cc \
 	src/fun/IdentResolver.cc \
 	src/fun/Lexer.cc \
 	src/fun/parse.cc \
 	src/fun/print.cc \
-	src/fun/codegen.cc \
 	src/lafun/parse.cc \
 	src/lafun/print.cc \
 	src/Reader.cc \
