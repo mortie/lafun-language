@@ -61,9 +61,10 @@ When compiling to LaTeX then to PDF, we can see just how beautiful our code has 
 Running it is also simple!
 
 ```
-$ ./build/lafun examples/readme.fun -o examples/readme.js
-$ node examples/readme.js
-25
+$ ./build/lafun examples/readme.fun -o test.js
+$ node test.js
+vector: x=3, y=4
+SqL2Norm2D(vector): 25
 ```
 
 # Try LaFuN
