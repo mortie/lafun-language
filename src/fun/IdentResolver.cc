@@ -10,7 +10,10 @@ namespace fun {
 
 class ScopeStack {
 public:
-	ScopeStack(IdentResolver &resolver): resolver_(resolver) {}
+	ScopeStack(IdentResolver &resolver): resolver_(resolver) {
+		scopes_.emplace_back();
+		scopes_.back()["__builtins"] = BUILTINS;
+	}
 
 	void pushScope();
 	void popScope();
@@ -28,6 +31,7 @@ private:
 	IdentResolver &resolver_;
 
 	static constexpr size_t TRAP = ~(size_t)0;
+	static constexpr size_t BUILTINS = ~(size_t)1;
 };
 
 void ScopeStack::pushScope() {
