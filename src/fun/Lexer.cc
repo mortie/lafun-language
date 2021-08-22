@@ -116,7 +116,7 @@ Token Lexer::consume() {
 }
 
 void Lexer::reset() {
-	reader.reset();
+	reader_.reset();
 	bufidx_ = 0;
 }
 
@@ -240,6 +240,8 @@ Token Lexer::readIdent() {
 Token Lexer::readTok() {
 	skipWhitespace();
 
+	tokStartIdx_ = reader_.idx;
+
 	int ch = peekCh(0);
 	switch (ch) {
 	case '{': readCh(); return makeTok(TokKind::OPEN_BRACE);
@@ -317,11 +319,11 @@ Token Lexer::readTok() {
 }
 
 int Lexer::readCh() {
-	return reader.readCh();
+	return reader_.readCh();
 }
 
 int Lexer::peekCh(size_t n) {
-	return reader.peekCh(n);
+	return reader_.peekCh(n);
 }
 
 }

@@ -6,11 +6,14 @@
 #include <variant>
 #include <cstddef>
 
+#include "ByteRange.h"
+
 namespace fun::ast {
 
 struct Identifier {
 	std::string name;
 	size_t id = 0;
+	ByteRange range;
 };
 
 struct StringLiteralExpr;

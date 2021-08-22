@@ -91,7 +91,7 @@ void parseLafun(Reader &reader, LafunDocument &document) {
 				fun::Lexer lexer(reader);
 				fun::ast::Declaration decl;
 				parseDeclaration(lexer, decl);
-				reader = lexer.reader;
+				reader = lexer.reader_;
 				document.push_back(std::move(decl));
 			} else {
 				// skip it

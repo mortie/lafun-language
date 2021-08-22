@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Reader.h"
+#include "ByteRange.h"
 
 namespace fun {
 
@@ -59,6 +60,7 @@ struct Token {
 	TokKind kind;
 	int line;
 	int column;
+	ByteRange range;
 
 	struct Empty {};
 	std::variant<Empty, std::string, double> val;
@@ -72,15 +74,15 @@ struct Token {
 
 class Lexer {
 public:
-	Lexer(std::string_view string): reader(string) {}
-	Lexer(const Reader &reader): reader(reader) {}
+	Lexer(std::string_view string): reader_(string) {}
+	Lexer(const Reader &reader): reader_(reader) {}
 
 	Token &peek(size_t n);
 	Token consume();
 
 	void reset();
 
-	Reader reader;
+	Reader reader_;
 
 private:
 	void skipWhitespace();
@@ -91,18 +93,27 @@ private:
 
 	Token readTok();
 
-	Token makeTok(TokKind kind) { return {kind, reader.line, reader.column, {}}; }
-	Token makeTok(TokKind kind, std::string &&str) { return {kind, reader.line, reader.column, std::move(str)}; }
-	Token makeTok(TokKind kind, double num) { return {kind, reader.line, reader.column, num}; }
+	Token makeTok(TokKind kind) {
+		return {kind, reader_.line, reader_.column, {tokStartIdx_, reader_.idx}, {}};
+	}
+
+	Token makeTok(TokKind kind, std::string &&str) {
+		return {kind, reader_.line, reader_.column, {tokStartIdx_, reader_.idx}, std::move(str)};
+	}
+
+	Token makeTok(TokKind kind, double num) {
+		return {kind, reader_.line, reader_.column, {tokStartIdx_, reader_.idx}, num};
+	}
 
 	[[noreturn]]
-	void error(std::string &&message) { throw LexError(reader.line, reader.column, std::move(message)); }
+	void error(std::string &&message) { throw LexError(reader_.line, reader_.column, std::move(message)); }
 
 	int readCh();
 	int peekCh(size_t n);
 
 	Token buffer_[4];
 	size_t bufidx_ = 0;
+	size_t tokStartIdx_;
 };
 
 }
