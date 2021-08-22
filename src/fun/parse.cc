@@ -1,6 +1,7 @@
 #include "parse.h"
 
 #include <utility>
+#include <cassert>
 
 #include "util.h"
 
@@ -109,6 +110,8 @@ static void parseExpression(Lexer &lexer, Expression &expr) {
 				bin.op = BinaryExpr::MULT;
 			} else if (kind == TokKind::DIV) {
 				bin.op = BinaryExpr::DIV;
+			} else {
+				assert(false);
 			}
 
 			expr = std::move(bin);
@@ -140,6 +143,16 @@ static void parseExpression(Lexer &lexer, Expression &expr) {
 			assignment.rhs = std::make_unique<Expression>();
 			parseExpression(lexer, *assignment.rhs);
 			expr = std::move(assignment);
+		} else if (kind == TokKind::DOT) {
+			lexer.consume(); // '.'
+
+			expect(lexer, TokKind::IDENT);
+			Token tok = lexer.consume();
+
+			LookupExpr lookup;
+			lookup.lhs = std::make_unique<Expression>(std::move(expr));
+			lookup.name = std::move(tok.getStr());
+			expr = std::move(lookup);
 		} else {
 			break;
 		}

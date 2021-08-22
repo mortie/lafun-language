@@ -137,6 +137,18 @@ Codegen::ExpressionName Codegen::generateExpression(std::ostream &os, const ast:
 			os << ";\n";
 			return &expr2.ident;
 		},
+		[&](const ast::LookupExpr &expr2) -> ExpressionName {
+			// Recursively generate the lhs operand to get the expression lhs
+			// Emit temp = (lhs) + name
+			// Return temp as the expression name
+			auto lhsName = generateExpression(os, expr2.lhs.get());
+			auto temp = count();
+			os << "const temp" << temp << " = (";
+
+			generateExpressionName(os, lhsName);
+			os << ")." << expr2.name << ";\n";
+			return temp;
+		},
 	}, *expr);
 }
 

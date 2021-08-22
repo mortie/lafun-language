@@ -71,6 +71,10 @@ void printExpression(std::ostream &os, const Expression &expr, int depth) {
 			os << " := ";
 			printExpression(os, *assignment.rhs, depth);
 		},
+		[&](const LookupExpr &lookup) {
+			printExpression(os, *lookup.lhs, depth);
+			os << '.' << lookup.name;
+		},
 	}, expr);
 	os << ')';
 }

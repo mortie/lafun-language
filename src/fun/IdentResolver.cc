@@ -121,6 +121,9 @@ static void addExpression(ScopeStack &scope, Expression &expr) {
 			scope.defineTrap(assignment.ident.name);
 			addExpression(scope, *assignment.rhs);
 		},
+		[&](LookupExpr &lookup) {
+			addExpression(scope, *lookup.lhs);
+		},
 	}, expr);
 }
 
@@ -148,6 +151,9 @@ static void finalizeExpression(ScopeStack &scope, Expression &expr) {
 		[&](DeclAssignmentExpr &assignment) {
 			finalizeExpression(scope, *assignment.rhs);
 			assignment.ident.id = scope.redefine(assignment.ident.name);
+		},
+		[&](LookupExpr &lookup) {
+			finalizeExpression(scope, *lookup.lhs);
 		},
 	}, expr);
 }
@@ -292,6 +298,9 @@ static void resolveInExpression(const Expression &expr, const std::string &name,
 				ids.push_back(assignment.ident.id);
 			}
 			resolveInExpression(*assignment.rhs, name, ids);
+		},
+		[&](const LookupExpr &lookup) {
+			resolveInExpression(*lookup.lhs, name, ids);
 		},
 	}, expr);
 }

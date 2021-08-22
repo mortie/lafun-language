@@ -23,7 +23,7 @@ struct BinaryExpr;
 struct FuncCallExpr;
 struct AssignmentExpr;
 struct DeclAssignmentExpr;
-struct GroupExpr;
+struct LookupExpr;
 using Expression = std::variant<
 	StringLiteralExpr,
 	NumberLiteralExpr,
@@ -31,7 +31,8 @@ using Expression = std::variant<
 	BinaryExpr,
 	FuncCallExpr,
 	AssignmentExpr,
-	DeclAssignmentExpr>;
+	DeclAssignmentExpr,
+	LookupExpr>;
 
 struct StringLiteralExpr {
 	std::string str;
@@ -66,6 +67,11 @@ struct AssignmentExpr {
 struct DeclAssignmentExpr {
 	Identifier ident;
 	std::unique_ptr<Expression> rhs;
+};
+
+struct LookupExpr {
+	std::unique_ptr<Expression> lhs;
+	std::string name;
 };
 
 struct ClassDecl;
