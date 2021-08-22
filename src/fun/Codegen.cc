@@ -52,7 +52,8 @@ void Codegen::generateStatement(std::ostream &os, const ast::IfStatm *statm) {
 
 void Codegen::generateExpressionName(std::ostream &os, ExpressionName name) {
 	std::visit(overloaded {
-		[&](size_t temp) { os << "temp" << temp; },
+		[&](TemporaryId temp) { os << "temp" << temp; },
+		[&](NameLookup &lookup) { os << "temp" << lookup.first << "." << *lookup.second; },
 		[&](const ast::Identifier *temp) { os << "FUN_" << temp->name; },
 		[&](const ast::Expression *temp) {
 			std::visit(overloaded {
@@ -138,16 +139,12 @@ Codegen::ExpressionName Codegen::generateExpression(std::ostream &os, const ast:
 			return &expr2.ident;
 		},
 		[&](const ast::LookupExpr &expr2) -> ExpressionName {
-			// Recursively generate the lhs operand to get the expression lhs
-			// Emit temp = (lhs) + name
-			// Return temp as the expression name
 			auto lhsName = generateExpression(os, expr2.lhs.get());
 			auto temp = count();
-			os << "const temp" << temp << " = (";
-
+			os << "const temp" << temp << " = ";
 			generateExpressionName(os, lhsName);
-			os << ")." << expr2.name << ";\n";
-			return temp;
+			os << ";\n";
+			return NameLookup{temp, &expr2.name};
 		},
 	}, *expr);
 }
@@ -187,9 +184,9 @@ void Codegen::generateClassStart(std::ostream &os, const ast::ClassDecl *clas) {
 
 void Codegen::generateParameters(std::ostream &os, const std::vector<ast::Identifier> &args) {
 	if (!args.empty()) {
-		os << args[0].name;
+		os << "FUN_" << args[0].name;
 		for (size_t i = 1; i < args.size(); i++) {
-			os << ", " << args[i].name;
+			os << ", FUN_" << args[i].name;
 		}
 	}
 }

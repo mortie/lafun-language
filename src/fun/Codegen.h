@@ -19,7 +19,8 @@ class Codegen {
 	std::vector<const ast::Statement *> statms_; // except decls
 
 	using TemporaryId = size_t;
-	using ExpressionName = std::variant<TemporaryId, const ast::Identifier *, const ast::Expression *>;
+	using NameLookup = std::pair<TemporaryId, const std::string *>;
+	using ExpressionName = std::variant<TemporaryId, NameLookup, const ast::Identifier *, const ast::Expression *>;
 	// The name of "x := 5" is the subexpression "x"
 	// The name of "foo.bar := 5" is the subexpression "foo.bar" (when we support . operator)
 	// The name of "10 + (x := 5)" is some unique size_t not given to any other temporary
