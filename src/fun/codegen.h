@@ -53,15 +53,15 @@ public:
 	void generate(std::ostream &os);
 
 private:
-	std::unordered_set<std::string> alreadyDeclared;
+	std::unordered_set<std::string> alreadyDeclared_;
 
 	void generateStatement(std::ostream &os, const ast::Statement *statm);
 	void generateStatement(std::ostream &os, const ast::Expression *statm);
 	void generateStatement(std::ostream &os, const ast::IfStatm *statm);
 
-	size_t counter = 0;
+	size_t counter_ = 0;
 	size_t count() {
-		return counter++;
+		return counter_++;
 	}
 
 	void generateExpressionName(std::ostream &os, ExpressionName name);

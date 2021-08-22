@@ -18,9 +18,9 @@ void Codegen::generate(std::ostream &os) {
 
 void Codegen::generateStatement(std::ostream &os, const ast::Statement *statm) {
 	std::visit(overloaded {
-			[&](const ast::Declaration &) {}, // decls are handled in a separate code path
-			[&](const auto &statm) { generateStatement(os, &statm); }
-			}, *statm);
+		[&](const ast::Declaration &) {}, // decls are handled in a separate code path
+		[&](const auto &statm) { generateStatement(os, &statm); }
+	}, *statm);
 }
 
 void Codegen::generateStatement(std::ostream &os, const ast::Expression *statm) {
@@ -30,7 +30,7 @@ void Codegen::generateStatement(std::ostream &os, const ast::Expression *statm) 
 
 void Codegen::generateStatement(std::ostream &os, const ast::IfStatm *statm) {
 	// Temporarily swap out the list of names declared in this scope
-	std::unordered_set<std::string> outerDeclaredNames(std::move(alreadyDeclared));
+	std::unordered_set<std::string> outerDeclaredNames(std::move(alreadyDeclared_));
 
 	os << "{\n";
 	auto name = generateExpression(os, &statm->condition);
@@ -47,20 +47,20 @@ void Codegen::generateStatement(std::ostream &os, const ast::IfStatm *statm) {
 	os << "}\n";
 
 	// Move them back
-	alreadyDeclared = std::move(outerDeclaredNames);
+	alreadyDeclared_ = std::move(outerDeclaredNames);
 }
 
 void Codegen::generateExpressionName(std::ostream &os, ExpressionName name) {
 	std::visit(overloaded {
 		[&](size_t temp) { os << "temp" << temp; },
-		[&](const ast::Identifier *temp) { os << "var_" << temp->name; },
+		[&](const ast::Identifier *temp) { os << "FUN_" << temp->name; },
 		[&](const ast::Expression *temp) {
 			std::visit(overloaded {
-					[&](const ast::StringLiteralExpr &) { printExpression(os, *temp); },
-					[&](const ast::NumberLiteralExpr &) { printExpression(os, *temp); },
-					[&](const ast::IdentifierExpr &ident) { os << "var_" << ident.ident.name; },
-					[&](const auto &) { }, // everything else are not valid ExpressionName
-					}, *temp);
+				[&](const ast::StringLiteralExpr &) { printExpression(os, *temp); },
+				[&](const ast::NumberLiteralExpr &) { printExpression(os, *temp); },
+				[&](const ast::IdentifierExpr &ident) { os << "FUN_" << ident.ident.name; },
+				[&](const auto &) { }, // everything else are not valid ExpressionName
+			}, *temp);
 		},
 	}, name);
 }
@@ -125,8 +125,8 @@ Codegen::ExpressionName Codegen::generateExpression(std::ostream &os, const ast:
 			// Emit lhs = rhsName
 			// Return lhs as the expression name
 			auto rhsName = generateExpression(os, expr2.rhs.get());
-			if (alreadyDeclared.find(expr2.ident.name) == alreadyDeclared.end()) {
-				alreadyDeclared.insert(expr2.ident.name);
+			if (alreadyDeclared_.find(expr2.ident.name) == alreadyDeclared_.end()) {
+				alreadyDeclared_.insert(expr2.ident.name);
 				os << "let ";
 				generateExpressionName(os, &expr2.ident);
 				os << ";\n";
@@ -141,7 +141,7 @@ Codegen::ExpressionName Codegen::generateExpression(std::ostream &os, const ast:
 }
 
 void Codegen::generateFun(std::ostream &os, const ast::FuncDecl *fun) {
-	os << "function " << fun->ident.name << "(";
+	os << "function FUN_" << fun->ident.name << "(";
 	generateParameters(os, fun->args);
 	os << ") {\n";
 	generateCodeBlock(os, fun->body.get());
@@ -165,7 +165,7 @@ void Codegen::generateClass(std::ostream &os, const ClassAndMethods &clas) {
 }
 
 void Codegen::generateClassStart(std::ostream &os, const ast::ClassDecl *clas) {
-	os << "class " << clas->ident.name << " {\n";
+	os << "class FUN_" << clas->ident.name << " {\n";
 	os << "constructor (";
 	generateParameters(os, clas->args);
 	os << ") {\n";
