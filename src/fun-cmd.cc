@@ -2,7 +2,7 @@
 #include "fun/Lexer.h"
 #include "fun/print.h"
 #include "fun/IdentResolver.h"
-#include "fun/codegen.h"
+#include "fun/Codegen.h"
 
 #include <fstream>
 #include <iostream>
