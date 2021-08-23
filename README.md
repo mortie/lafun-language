@@ -175,7 +175,7 @@ When we have a class, we can add methods to it with a `\fun` declaration:
 }
 ```
 
-Creating an instance of a class is just like aclling a function,
+Creating an instance of a class is just like calling a function,
 so `Vector2D(10, 20)` creates a vector with `x=10` and `y=20`.
 
 Here's an example program using our vector:
