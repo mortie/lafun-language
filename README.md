@@ -77,7 +77,7 @@ To try LaFuN, simply clone this repository and try some of the example commands 
 
 ```
 $ make
-$ ./build/lafun examples/fibonacci.fun -o test.js
+$ ./build/lafun examples/readme.fun -o test.js
 $ node test.js
 vector: x=3, y=4
 SqL2Norm2D(vector): 25
