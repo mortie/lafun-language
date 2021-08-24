@@ -45,12 +45,16 @@ It takes an argument @val, which is the value to encode.
 	}
 }
 
+\subsection{Encode Number}
+
 The @jsonEncodeNumber function has to produce a string which contains the
 decimal expansion of a real number.
 
 \fun{jsonEncodeNumber}{num}{
 	return num.toString();
 }
+
+\subsection{Encode String}
 
 The @jsonEncodeString function has to produce a string which contains
 a JSON string literal, with proper escaping of quotes and backslashes.
@@ -75,6 +79,8 @@ a JSON string literal, with proper escaping of quotes and backslashes.
 	return string;
 }
 
+\subsection{Encode Boolean}
+
 The @jsonEncodeBoolean function needs to produce a string which contains either
 $true$ or $false$.
 
@@ -86,11 +92,15 @@ $true$ or $false$.
 	}
 }
 
+\subsection{Encode None}
+
 The @jsonEncodeNone function needs to produce a string which contains $null$.
 
 \fun{jsonEncodeNone}{val}{
 	return "null";
 }
+
+\subsection{Encode Array}
 
 The @jsonEncodeArray function needs to produce an array of JSON values,
 which is represented by an opening bracket $[$, followed by comma-separated
@@ -113,6 +123,8 @@ the values.
 	string = string + "]";
 	return string;
 }
+
+\subsection{Encode Object}
 
 The @jsonEncodeObject function needs to produce a map of string keys to JSON values,
 which is represented by an opening brace $\{$, followed by comma-separated
