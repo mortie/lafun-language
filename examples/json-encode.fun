@@ -62,7 +62,7 @@ a JSON string literal, with proper escaping of quotes and backslashes.
 		ch := str.at(index);
 		if ch == '\\' {
 			string = string + '\\\\';
-		} else if ch == '\\"' {
+		} else if ch == '\"' {
 			string = string + '\\"';
 		} else {
 			string = string + ch;
@@ -170,5 +170,5 @@ nested JSON structure.
 The output of that code should be:
 \begin{verbatim}
 {"exampleString": "I'm a JSON string", "someNumber": 100.57, "nothing": null,
-"exampleArray": [100, {"yes": true, "nope": false, "how are you?": ""Fine", thanks"}]}
+"exampleArray": [100, {"yes": true, "nope": false, "how are you?": "\"Fine\", thanks"}]}
 \end{verbatim}
