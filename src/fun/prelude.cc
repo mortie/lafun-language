@@ -33,6 +33,7 @@ function FUN_print() {
 	console.log.apply(console, arguments);
 }
 
+let FUN_math = Math;
 let FUN_true = true;
 let FUN_false = false;
 let FUN_none = null;
@@ -44,7 +45,7 @@ FUN_main();
 )javascript";
 
 const std::vector<std::string> preludeNames = {
-	"Array", "print", "true", "false", "none",
+	"Array", "print", "math", "true", "false", "none",
 };
 
 }
